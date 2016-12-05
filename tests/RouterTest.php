@@ -19,10 +19,10 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         // Mock app
-        $this->mockApp = $this->getMockBuilder('\Starlit\App\BaseApp')->disableOriginalConstructor()->getMock();
+        $this->mockApp = $this->createMock('\Starlit\App\BaseApp');
 
         // Mock app view (needed for controller instantiation)
-        $this->view = $this->getMock('\Starlit\App\View');
+        $this->view = $this->createMock('\Starlit\App\View');
         $this->mockApp->expects($this->any())
             ->method('getNew')
             ->with('view')
@@ -49,7 +49,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function testAddClearRoute()
     {
-        $mockRoute = $this->getMockBuilder('\Symfony\Component\Routing\Route')->disableOriginalConstructor()->getMock();
+        $mockRoute = $this->createMock('\Symfony\Component\Routing\Route');
 
         $this->assertCount(3, $this->router->getRoutes());
         $this->router->addRoute($mockRoute);
@@ -61,7 +61,8 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     public function testRoute()
     {
         // Mock controller get
-        $partiallyMockedRouter = $this->getMock('\Starlit\App\Router', ['getControllerClass'], [$this->mockApp]);
+        $partiallyMockedRouter = $this->getMockBuilder('\Starlit\App\Router')
+            ->setMethods(['getControllerClass'])->setConstructorArgs([$this->mockApp])->getMock();
         $partiallyMockedRouter->expects($this->once())
             ->method('getControllerClass')
             ->will($this->returnValue('\Starlit\App\RouterTestController'));
@@ -86,14 +87,15 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         // Route request
         $request = Request::create('/index/some-other');
 
-        $this->setExpectedException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
+        $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
         $this->router->route($request);
     }
 
     public function testRouteInvalidAction()
     {
         // Mock controller get
-        $partiallyMockedRouter = $this->getMock('\Starlit\App\Router', ['getControllerClass'], [$this->mockApp]);
+        $partiallyMockedRouter = $this->getMockBuilder('\Starlit\App\Router')
+            ->setMethods(['getControllerClass'])->setConstructorArgs([$this->mockApp])->getMock();
         $partiallyMockedRouter->expects($this->once())
             ->method('getControllerClass')
             ->will($this->returnValue('\Starlit\App\RouterTestController'));
@@ -105,7 +107,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         // Route request
         $request = Request::create('/index/some-other-other');
 
-        $this->setExpectedException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
+        $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
         $partiallyMockedRouter->route($request);
     }
 

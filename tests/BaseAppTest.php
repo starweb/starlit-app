@@ -21,9 +21,9 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Starlit\App\Provider\ErrorServiceProvider::register
-     * @covers Starlit\App\Provider\StandardServiceProvider::register
-     * @covers Starlit\App\BaseApp::getSession
+     * @covers \Starlit\App\Provider\ErrorServiceProvider::register
+     * @covers \Starlit\App\Provider\StandardServiceProvider::register
+     * @covers \Starlit\App\BaseApp::getSession
      */
     public function testInit()
     {
@@ -43,9 +43,9 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testHandle()
     {
-        $mockRequest = $this->getMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
-        $mockController = $this->getMockBuilder('\Starlit\App\AbstractController')->disableOriginalConstructor()->getMock();
+        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRouter = $this->createMock('\Starlit\App\Router');
+        $mockController = $this->createMock('\Starlit\App\AbstractController');
 
         $mockController->expects($this->once())
             ->method('dispatch')
@@ -66,8 +66,8 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testHandleNotFound()
     {
-        $mockRequest = $this->getMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('route')
             ->with($mockRequest)
@@ -82,7 +82,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testHandlePreHandleResponse()
     {
-        $mockRequest = $this->getMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
 
         $mockBaseApp = new TestBaseAppWithPreHandleResponse($this->fakeConfig, $this->fakeEnv);
         $response = $mockBaseApp->handle($mockRequest);
@@ -92,9 +92,9 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testHandlePostRouteResponse()
     {
-        $mockRequest = $this->getMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
-        $mockController = $this->getMockBuilder('\Starlit\App\AbstractController')->disableOriginalConstructor()->getMock();
+        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRouter = $this->createMock('\Starlit\App\Router');
+        $mockController = $this->createMock('\Starlit\App\AbstractController');
         ;
         $mockBaseApp = new TestBaseAppWithPostRouteResponse($this->fakeConfig, $this->fakeEnv);
 
@@ -118,7 +118,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testGetFail()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->app->get('invalidKey');
     }
 
@@ -129,7 +129,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testGetNewUndefined()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->app->getNew('bla');
     }
 
@@ -137,7 +137,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     {
         $this->app->set('someKey', 'someValue');
 
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->app->getNew('someKey');
     }
 
@@ -154,13 +154,13 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function test__callFail()
     {
-        $this->setExpectedException('\BadMethodCallException');
+        $this->expectException('\BadMethodCallException');
         $this->app->setBla();
     }
 
     public function test__callFail2()
     {
-        $this->setExpectedException('\BadMethodCallException');
+        $this->expectException('\BadMethodCallException');
         $this->app->fail();
     }
 

@@ -47,11 +47,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Starlit\App\View::renderScript
+     * @covers \Starlit\App\View::renderScript
      */
     public function testRenderNonExistantView()
     {
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException('\RuntimeException');
         $this->view->render('non-existant');
     }
 
@@ -78,7 +78,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testAddHelperClass()
     {
-        $mockHelper = $this->getMock('\Starlit\App\ViewHelper\AbstractViewHelper');
+        $mockHelper = $this->createMock('\Starlit\App\ViewHelper\AbstractViewHelper');
         $mockClassName = get_class($mockHelper);
 
         $this->view->addHelperClass('mock', $mockClassName);
@@ -89,7 +89,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testGetHelperFail()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->view->getHelper('nonExisting');
     }
 
@@ -103,7 +103,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testRequest()
     {
-        $mockRequest = $this->getMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
         $this->view->setRequest($mockRequest);
 
         $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Request', $this->view->getRequest());

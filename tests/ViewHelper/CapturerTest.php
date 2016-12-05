@@ -51,13 +51,13 @@ class CapturerTest extends \PHPUnit_Framework_TestCase
 
     public function testEndFail()
     {
-        $this->setExpectedException('\LogicException');
+        $this->expectException('\LogicException');
         $this->capturerHelper->end();
     }
 
     public function testGetContentFail()
     {
-        $this->setExpectedException('\LogicException');
+        $this->expectException('\LogicException');
         $this->capturerHelper->getContent();
     }
 
@@ -66,7 +66,7 @@ class CapturerTest extends \PHPUnit_Framework_TestCase
         $invokableObject = $this->capturerHelper;
         $helper = $invokableObject('test1');
 
-        $this->setExpectedException('\LogicException');
+        $this->expectException('\LogicException');
         $helper->getContent();
     }
 

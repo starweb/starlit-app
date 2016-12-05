@@ -32,11 +32,11 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->mockApp = $this->getMockBuilder('\Starlit\App\BaseApp')->disableOriginalConstructor()->getMock();
-        $this->mockRequest = $this->getMock('\Symfony\Component\HttpFoundation\Request');
-        $this->mockRequest->server = $this->getMock('\Symfony\Component\HttpFoundation\ServerBag');
+        $this->mockApp = $this->createMock('\Starlit\App\BaseApp');
+        $this->mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $this->mockRequest->server = $this->createMock('\Symfony\Component\HttpFoundation\ServerBag');
 
-        $this->mockView = $this->getMock('\Starlit\App\View');
+        $this->mockView = $this->createMock('\Starlit\App\View');
         $this->mockApp->expects($this->any())
             ->method('getNew')
             ->with('view')
@@ -97,7 +97,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     public function testDispatch()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('index')
@@ -120,7 +120,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     public function testDispatchPreDispatch()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('pre-test')
@@ -136,7 +136,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     public function testDispatchSpecifiedWithResponseAndParamAction()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('some-other')
@@ -146,7 +146,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($mockRouter));
 
         // mock request-attributes has
-        $this->mockRequest->attributes = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $this->mockRequest->attributes = $this->createMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $this->mockRequest->attributes->expects($this->exactly(2))
             ->method('has')
             ->will($this->returnCallback(function ($paramName) {
@@ -167,7 +167,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     public function testDispatchWithoutReqParam()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('some-other')
@@ -177,19 +177,19 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($mockRouter));
 
         // mock request-attributes has
-        $this->mockRequest->attributes = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $this->mockRequest->attributes = $this->createMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $this->mockRequest->attributes->expects($this->once())
             ->method('has')
             ->will($this->returnValue(false));
 
-        $this->setExpectedException('\LogicException');
+        $this->expectException('\LogicException');
         $this->testController->dispatch('some-other');
     }
 
     public function testDispatchNonExistingAction()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('none')
@@ -198,14 +198,14 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
-        $this->setExpectedException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
+        $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
         $this->testController->dispatch('none');
     }
 
     public function testDispatchInvalidAction()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('invalid')
@@ -214,14 +214,14 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
-        $this->setExpectedException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
+        $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
         $this->testController->dispatch('invalid');
     }
 
     public function testDispatchNoAutoAction()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('no-auto')
@@ -237,7 +237,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     public function testDispatchStringReturn()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('string-return')
@@ -253,7 +253,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     public function testForwardInternal()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('forward-end')
@@ -275,7 +275,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     public function testForward()
     {
         // mock Router::getActionMethod return
-        $mockRouter = $this->getMockBuilder('\Starlit\App\Router')->disableOriginalConstructor()->getMock();
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('forward-end')
@@ -321,7 +321,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getSchemeAndHttpHost')
             ->will($this->returnValue('http://www.example.org'));
 
-        $this->mockRequest->query = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $this->mockRequest->query = $this->createMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $this->mockRequest->query->expects($this->exactly(1))
             ->method('all')
             ->will($this->returnValue(['a' => 1]));
@@ -336,7 +336,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     public function testGet()
     {
         $get = ['a' => 1, 'b' => 2];
-        $this->mockRequest->query = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $this->mockRequest->query = $this->createMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $this->mockRequest->query->expects($this->exactly(1))
             ->method('all')
             ->will($this->returnValue($get));
@@ -356,7 +356,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     public function testPost()
     {
         $get = ['a' => 1, 'b' => 2];
-        $this->mockRequest->request = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $this->mockRequest->request = $this->createMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $this->mockRequest->request->expects($this->exactly(1))
             ->method('all')
             ->will($this->returnValue($get));
