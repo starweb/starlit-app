@@ -361,6 +361,14 @@ class BaseApp
     }
 
     /**
+     * @return Request|null
+     */
+    public function getRequest()
+    {
+        return $this->has('request') ? $this->get('request') : null;
+    }
+
+    /**
      * @return string
      */
     public function getEnvironment()

@@ -209,6 +209,19 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals($this->fakeEnv, $this->app->getEnvironment());
     }
+
+    public function testGetRequestReturnsRequest()
+    {
+        $mockRequest = $this->createMock(Request::class);
+        $this->app->set('request', $mockRequest);
+
+        $this->assertSame($mockRequest, $this->app->getRequest());
+    }
+
+    public function testRequestReturnsNull()
+    {
+        $this->assertNull($this->app->getRequest());
+    }
 }
 
 class TestBaseAppWithPreHandleResponse extends BaseApp
