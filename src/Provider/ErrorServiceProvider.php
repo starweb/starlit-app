@@ -45,6 +45,12 @@ class ErrorServiceProvider implements ServiceProviderInterface
             return $prettyPageHandler;
         });
 
+        $app->set('whoopsUserErrorPageHandler', function (BaseApp $app) {
+            return new \Starlit\App\ErrorHandling\UserErrorPageHandler(
+                $app->getConfig()->getRequired('errorPagePath')
+            );
+        });
+
         $app->set('whoopsErrorHandler', function (BaseApp $app) {
             $plainTextHandler = new \Whoops\Handler\PlainTextHandler();
             $plainTextHandler->setLogger($app->get('errorLogger'));
@@ -60,6 +66,8 @@ class ErrorServiceProvider implements ServiceProviderInterface
 
             if (ini_get('display_errors')) {
                 $whoops->pushHandler($app->get('whoopsDebugErrorPageHandler'));
+            } elseif ($app->getConfig()->has('errorPagePath')) {
+                $whoops->pushHandler($app->get('whoopsUserErrorPageHandler'));
             }
 
             // Handles cli output and logging
