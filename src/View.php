@@ -147,7 +147,7 @@ class View
     public function render($script, $renderLayout = false)
     {
         // Check If script should be rendered with a layout
-        if ($renderLayout && $this->layoutScript) {
+        if ($renderLayout && !empty($this->layoutScript)) {
             $this->layoutContent = $this->renderScript($script);
 
             return $this->renderScript($this->layoutScript);

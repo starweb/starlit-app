@@ -234,7 +234,7 @@ abstract class AbstractController
     protected function forward($action, $controller = null, $module = null, array $actionArgs = [])
     {
         // Forward inside same controller (easy)
-        if (!$controller) {
+        if (empty($controller)) {
             return $this->dispatch($action, $actionArgs);
         // Forward to another controller
         } else {

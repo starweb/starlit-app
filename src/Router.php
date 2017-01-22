@@ -217,7 +217,7 @@ class Router
     public function getControllerClass($controller, $module = null)
     {
         $moduleNamespace = null;
-        if ($module) {
+        if (!empty($module)) {
             $moduleNamespace = Str::separatorToCamel($module, '-', true);
         }
 
