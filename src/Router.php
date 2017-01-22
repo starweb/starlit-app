@@ -36,7 +36,12 @@ class Router
     /**
      * @var string
      */
-    protected $defaultModule = '';
+    protected $controllerNamespace = 'App\\Controller';
+
+    /**
+     * @var string|null
+     */
+    protected $defaultModule;
 
     /**
      * @var string
@@ -82,6 +87,10 @@ class Router
      */
     public function setOptions(array $options)
     {
+        if (isset($options['controllerNamespace'])) {
+            $this->controllerNamespace = $options['controllerNamespace'];
+        }
+
         if (isset($options['defaultModule'])) {
             $this->defaultModule = $options['defaultModule'];
         }
@@ -175,13 +184,13 @@ class Router
 
 
         // Set request properties with defaults
-        $module = $request->attributes->get('module', $this->defaultModule);
-        $controller = $request->attributes->get('controller', $this->defaultController);
-        $action = $request->attributes->get('action', $this->defaultAction);
+        $module = $this->getRequestModule($request);
+        $controller = $this->getRequestController($request);
+        $action = $this->getRequestAction($request);
         $request->attributes->add(compact('module', 'controller', 'action'));
 
         // Get callable names
-        $controllerClass = $this->getControllerClass($module, $controller);
+        $controllerClass = $this->getControllerClass($controller, $module);
         $actionMethod = $this->getActionMethod($action);
 
         // Check that controller exist
@@ -201,20 +210,24 @@ class Router
     }
 
     /**
-     * @param string $module     Relative module namespace, like Core or Core\\Api
-     * @param string $controller Controller name as lowercase separated string
+     * @param string      $controller Controller name as lowercase separated string
+     * @param string|null $module     Module as lowercase separated string
      * @return string
      */
-    public function getControllerClass($module, $controller)
+    public function getControllerClass($controller, $module = null)
     {
-        $modulePrefix = '';
+        $moduleNamespace = null;
         if ($module) {
-            $modulePrefix = '\\' . $module;
+            $moduleNamespace = Str::separatorToCamel($module, '-', true);
         }
 
         $controllerClassName = Str::separatorToCamel($controller, '-', true) . $this->controllerClassSuffix;
 
-        return $modulePrefix . '\\Controller\\' . $controllerClassName;
+        return '\\' . implode('\\', array_filter([
+            $moduleNamespace,
+            $this->controllerNamespace,
+            $controllerClassName
+        ]));
     }
 
     /**
@@ -224,5 +237,32 @@ class Router
     public function getActionMethod($action)
     {
         return Str::separatorToCamel($action, '-') . $this->actionMethodSuffix;
+    }
+
+    /**
+     * @param Request $request
+     * @return string
+     */
+    public function getRequestModule(Request $request)
+    {
+        return $request->attributes->get('module', $this->defaultModule);
+    }
+
+    /**
+     * @param Request $request
+     * @return string
+     */
+    public function getRequestController(Request $request)
+    {
+        return $request->attributes->get('controller', $this->defaultController);
+    }
+
+    /**
+     * @param Request $request
+     * @return string
+     */
+    public function getRequestAction(Request $request)
+    {
+        return $request->attributes->get('action', $this->defaultAction);
     }
 }

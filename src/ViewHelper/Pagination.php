@@ -24,7 +24,7 @@ class Pagination extends AbstractViewHelper
      * @param int   $rowsPerPage
      * @param int   $totalRowCount
      * @param array $options
-     * @return Paginator
+     * @return string
      */
     public function __invoke($currentPageNo, $rowsPerPage, $totalRowCount, array $options = [])
     {

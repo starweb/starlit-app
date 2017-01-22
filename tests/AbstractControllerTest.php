@@ -53,18 +53,6 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testConstruct()
     {
-         // check module
-        $rObject = new \ReflectionObject($this->testController);
-        $prop = $rObject->getProperty('module');
-        $prop->setAccessible(true);
-        $this->assertEquals('Starlit', $prop->getValue($this->testController));
-
-         // check controller
-        $rObject = new \ReflectionObject($this->testController);
-        $prop = $rObject->getProperty('controller');
-        $prop->setAccessible(true);
-        $this->assertEquals('test', $prop->getValue($this->testController));
-
         // check view
         $rObject = new \ReflectionObject($this->testController);
         $prop = $rObject->getProperty('view');
@@ -98,19 +86,19 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     {
         // mock Router::getActionMethod return
         $mockRouter = $this->createMock('\Starlit\App\Router');
-        $mockRouter->expects($this->once())
-            ->method('getActionMethod')
+        $mockRouter->method('getActionMethod')
             ->with('index')
-            ->will($this->returnValue('indexAction'));
-        $this->mockApp->expects($this->once())
-            ->method('getRouter')
-            ->will($this->returnValue($mockRouter));
+            ->willReturn('indexAction');
+        $mockRouter->method('getRequestController')
+            ->willReturn('test');
+        $this->mockApp->method('getRouter')
+            ->willReturn($mockRouter);
 
         // mock View::render return
-        $this->mockView->expects($this->any())
+        $this->mockView->expects($this->atLeastOnce())
             ->method('render')
-            ->with('starlit/test/index')
-            ->will($this->returnValue('yes'));
+            ->with('test/index')
+            ->willReturn('yes');
 
 
         $response = $this->testController->dispatch('index');
@@ -121,12 +109,10 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
     {
         // mock Router::getActionMethod return
         $mockRouter = $this->createMock('\Starlit\App\Router');
-        $mockRouter->expects($this->once())
-            ->method('getActionMethod')
+        $mockRouter->method('getActionMethod')
             ->with('pre-test')
             ->will($this->returnValue('preTestAction'));
-        $this->mockApp->expects($this->once())
-            ->method('getRouter')
+        $this->mockApp->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
         $response = $this->testController->dispatch('pre-test');
@@ -141,8 +127,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getActionMethod')
             ->with('some-other')
             ->will($this->returnValue('someOtherAction'));
-        $this->mockApp->expects($this->once())
-            ->method('getRouter')
+        $this->mockApp->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
         // mock request-attributes has
@@ -172,8 +157,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getActionMethod')
             ->with('some-other')
             ->will($this->returnValue('someOtherAction'));
-        $this->mockApp->expects($this->once())
-            ->method('getRouter')
+        $this->mockApp->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
         // mock request-attributes has
@@ -194,8 +178,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getActionMethod')
             ->with('none')
             ->will($this->returnValue('noneAction'));
-        $this->mockApp->expects($this->once())
-            ->method('getRouter')
+        $this->mockApp->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
         $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
@@ -210,8 +193,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getActionMethod')
             ->with('invalid')
             ->will($this->returnValue('invalidAction'));
-        $this->mockApp->expects($this->once())
-            ->method('getRouter')
+        $this->mockApp->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
         $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
@@ -226,8 +208,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getActionMethod')
             ->with('no-auto')
             ->will($this->returnValue('noAutoAction'));
-        $this->mockApp->expects($this->once())
-            ->method('getRouter')
+        $this->mockApp->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
         $response = $this->testController->dispatch('no-auto');
@@ -242,8 +223,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getActionMethod')
             ->with('string-return')
             ->will($this->returnValue('stringReturnAction'));
-        $this->mockApp->expects($this->once())
-            ->method('getRouter')
+        $this->mockApp->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
         $response = $this->testController->dispatch('string-return');
@@ -258,8 +238,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getActionMethod')
             ->with('forward-end')
             ->will($this->returnValue('forwardEndAction'));
-        $this->mockApp->expects($this->once())
-            ->method('getRouter')
+        $this->mockApp->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
 
@@ -274,18 +253,42 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testForward()
     {
-        // mock Router::getActionMethod return
         $mockRouter = $this->createMock('\Starlit\App\Router');
+        $mockRouter->expects($this->once())
+            ->method('getRequestModule')
+            ->willReturn(null);
+        $mockRouter->expects($this->once())
+            ->method('getControllerClass')
+            ->with('login')
+            ->will($this->returnValue('Starlit\App\TestController'));
         $mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('forward-end')
             ->will($this->returnValue('forwardEndAction'));
+        $this->mockApp->method('getRouter')
+            ->will($this->returnValue($mockRouter));
+
+        // Gain access to protected forward method
+        $rObject = new \ReflectionObject($this->testController);
+        $method = $rObject->getMethod('forward');
+        $method->setAccessible(true);
+
+        $response = $method->invokeArgs($this->testController, ['forward-end', 'login']);
+        $this->assertEquals('eeend', $response->getContent());
+    }
+
+    public function testForwardWithModule()
+    {
+        $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockRouter->expects($this->once())
             ->method('getControllerClass')
-            ->with('sw', 'mock')
+            ->with('login', 'admin')
             ->will($this->returnValue('Starlit\App\TestController'));
-        $this->mockApp->expects($this->any())
-            ->method('getRouter')
+        $mockRouter->expects($this->once())
+            ->method('getActionMethod')
+            ->with('forward-end')
+            ->will($this->returnValue('forwardEndAction'));
+        $this->mockApp->method('getRouter')
             ->will($this->returnValue($mockRouter));
 
 
@@ -294,7 +297,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
         $method = $rObject->getMethod('forward');
         $method->setAccessible(true);
 
-        $response = $method->invokeArgs($this->testController, ['forward-end', 'mock', 'sw']);
+        $response = $method->invokeArgs($this->testController, ['forward-end', 'login', 'admin']);
         $this->assertEquals('eeend', $response->getContent());
     }
 

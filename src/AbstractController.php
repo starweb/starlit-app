@@ -32,16 +32,6 @@ abstract class AbstractController
     protected $request;
 
     /**
-     * @var string
-     */
-    protected $module;
-
-    /**
-     * @var string
-     */
-    protected $controller;
-
-    /**
      * @var View
      */
     protected $view;
@@ -66,12 +56,6 @@ abstract class AbstractController
     {
         $this->app = $app;
         $this->request = $request;
-
-        $classNameParts = explode('\\', get_class($this));
-        $firstPart = $classNameParts[0];
-        $lastPart = end($classNameParts);
-        $this->module = ($firstPart == 'Controller') ? '' : $firstPart;
-        $this->controller = Str::camelToSeparator(Str::stripRight($lastPart, 'Controller'), '-');
 
         $this->view = $this->app->getNew('view');
         $this->view->setRequest($this->request);
@@ -119,15 +103,18 @@ abstract class AbstractController
     /**
      * Dispatch the requested action
      *
-     * @param string $action action id/name (lowercase, - word separation)
-     * @param array  $actionArgs
+     * @param string|null $action action id/name (lowercase, - word separation)
+     * @param array       $actionArgs
      * @return Response
      * @throws Routing\Exception\ResourceNotFoundException
      */
-    public function dispatch($action = '', array $actionArgs = [])
+    public function dispatch($action = null, array $actionArgs = [])
     {
-        // If not special action is provided, try to get from request attribute
-        $action = Str::camelToSeparator($action ?: $this->request->attributes->get('action'), '-');
+        // If not special action is provided, try to get from request
+        $action = Str::camelToSeparator(
+            $action ?: $this->app->getRouter()->getRequestAction($this->request),
+            '-'
+        );
         $actionMethod = $this->app->getRouter()->getActionMethod($action);
         $collectedArgs = $this->getCollectedDispatchArgs($actionMethod, $actionArgs);
 
@@ -198,8 +185,11 @@ abstract class AbstractController
         } elseif ($actionResponse !== null) {
             return $this->app->get('response')->setContent((string) $actionResponse)->prepare($this->request);
         } elseif ($this->autoRenderView) {
-            $viewScript = $this->autoRenderViewScript
-                ?: $this->getAutoRenderViewScriptName($this->module, $this->controller, $action);
+            $viewScript = $this->autoRenderViewScript ?: $this->getAutoRenderViewScriptName(
+                $action,
+                $this->app->getRouter()->getRequestController($this->request),
+                $this->app->getRouter()->getRequestModule($this->request)
+            );
 
             return $this->app->get('response')->setContent($this->view->render($viewScript, true))
                 ->prepare($this->request);
@@ -211,15 +201,14 @@ abstract class AbstractController
     }
 
     /**
-     * @param string $module
-     * @param string $controller
-     * @param string $action
+     * @param string      $action
+     * @param string      $controller
+     * @param string|null $module
      * @return string
      */
-    public function getAutoRenderViewScriptName($module, $controller, $action)
+    public function getAutoRenderViewScriptName($action, $controller, $module = null)
     {
-        $modulePath = implode('/', explode('\\', strtolower($module)));
-        $viewScriptName = ltrim(implode('/', [$modulePath, $controller, $action]), '/');
+        $viewScriptName = implode('/', array_filter([$module, $controller, $action]));
 
         return $viewScriptName;
     }
@@ -236,23 +225,23 @@ abstract class AbstractController
     /**
      * Forwards request to another action and/or controller
      *
-     * @param string $action     Action name as lowercase separated string
-     * @param string $controller Controller name as lowercase separated string
-     * @param string $module     Module name as lowercase separated string
-     * @param array  $actionArgs
+     * @param string      $action     Action name as lowercase separated string
+     * @param string|null $controller Controller name as lowercase separated string
+     * @param string|null $module     Module name as lowercase separated string
+     * @param array       $actionArgs
      * @return Response
      */
-    protected function forward($action, $controller = '', $module = '', array $actionArgs = [])
+    protected function forward($action, $controller = null, $module = null, array $actionArgs = [])
     {
         // Forward inside same controller (easy)
         if (!$controller) {
             return $this->dispatch($action, $actionArgs);
         // Forward to another controller
         } else {
-            $module = $module ?: $this->module;
-            $controller = $controller ?: $this->controller;
+            $controller = $controller ?: $this->app->getRouter()->getRequestController($this->request);
+            $module = $module ?: $this->app->getRouter()->getRequestModule($this->request);
 
-            $controllerClass = $this->app->getRouter()->getControllerClass($module, $controller);
+            $controllerClass = $this->app->getRouter()->getControllerClass($controller, $module);
             $actualController = new $controllerClass($this->app, $this->request);
 
             return $actualController->dispatch($action, $actionArgs);

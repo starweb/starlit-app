@@ -52,14 +52,14 @@ class View
     protected $variables = [];
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $layoutScript = '';
+    protected $layoutScript;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $layoutContent = '';
+    protected $layoutContent;
 
     /**
      * @var Request

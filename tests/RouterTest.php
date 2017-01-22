@@ -28,7 +28,9 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             ->with('view')
             ->will($this->returnValue($this->view));
 
-        $this->router = new Router($this->mockApp);
+        $this->router = new Router($this->mockApp, [
+            'controllerNamespace' => 'Controller'
+        ]);
     }
 
     public function testConstructAndOptions()
@@ -62,7 +64,9 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     {
         // Mock controller get
         $partiallyMockedRouter = $this->getMockBuilder('\Starlit\App\Router')
-            ->setMethods(['getControllerClass'])->setConstructorArgs([$this->mockApp])->getMock();
+            ->setMethods(['getControllerClass'])
+            ->setConstructorArgs([$this->mockApp])
+            ->getMock();
         $partiallyMockedRouter->expects($this->once())
             ->method('getControllerClass')
             ->will($this->returnValue('\Starlit\App\RouterTestController'));
@@ -95,7 +99,9 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     {
         // Mock controller get
         $partiallyMockedRouter = $this->getMockBuilder('\Starlit\App\Router')
-            ->setMethods(['getControllerClass'])->setConstructorArgs([$this->mockApp])->getMock();
+            ->setMethods(['getControllerClass'])
+            ->setConstructorArgs([$this->mockApp])
+            ->getMock();
         $partiallyMockedRouter->expects($this->once())
             ->method('getControllerClass')
             ->will($this->returnValue('\Starlit\App\RouterTestController'));
@@ -113,11 +119,20 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function testGetControllerClass()
     {
-        $controllerClass = $this->router->getControllerClass('Core', 'test');
-        $this->assertEquals('\\Core\\Controller\\TestController', $controllerClass);
+        $controllerClass = $this->router->getControllerClass('test');
+        $this->assertEquals('\Controller\\TestController', $controllerClass);
+    }
 
-        $controllerClass = $this->router->getControllerClass('Core\\Api', 'some-name');
-        $this->assertEquals('\\Core\\Api\\Controller\\SomeNameController', $controllerClass);
+    public function testGetSeparatedControllerClass()
+    {
+        $controllerClass = $this->router->getControllerClass('test-Two');
+        $this->assertEquals('\\Controller\\TestTwoController', $controllerClass);
+    }
+
+    public function testGetControllerClassWithModule()
+    {
+        $controllerClass = $this->router->getControllerClass('login', 'admin');
+        $this->assertEquals('\\Admin\\Controller\\LoginController', $controllerClass);
     }
 
     public function testGetActionMethod()

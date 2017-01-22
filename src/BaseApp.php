@@ -2,7 +2,7 @@
 /**
  * Starlit App.
  *
- * @copyright Copyright (c) Starweb AB
+ * @copyright Copyright (c) 2016 Starweb AB
  * @license   BSD 3-Clause
  */
 
