@@ -244,6 +244,9 @@ abstract class AbstractController
             $controllerClass = $this->app->getRouter()->getControllerClass($controller, $module);
             $actualController = new $controllerClass($this->app, $this->request);
 
+            // Set new request properties
+            $this->request->attributes->add(compact('module', 'controller', 'action'));
+
             return $actualController->dispatch($action, $actionArgs);
         }
     }
