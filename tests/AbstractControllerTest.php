@@ -1,7 +1,10 @@
 <?php
 namespace Starlit\App;
 
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ServerBag;
 
 class AbstractControllerTest extends \PHPUnit_Framework_TestCase
 {
@@ -32,17 +35,18 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->mockApp = $this->createMock('\Starlit\App\BaseApp');
-        $this->mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
-        $this->mockRequest->server = $this->createMock('\Symfony\Component\HttpFoundation\ServerBag');
+        $this->mockApp = $this->createMock(BaseApp::class);
+        $this->mockRequest = $this->createMock(Request::class);
+        $this->mockRequest->server = $this->createMock(ServerBag::class);
+        $this->mockRequest->attributes = $this->createMock(ParameterBag::class);
 
-        $this->mockView = $this->createMock('\Starlit\App\View');
+        $this->mockView = $this->createMock(View::class);
         $this->mockApp->expects($this->any())
             ->method('getNew')
             ->with('view')
             ->will($this->returnValue($this->mockView));
 
-        $this->mockResponse = new \Symfony\Component\HttpFoundation\Response();
+        $this->mockResponse = new Response();
         $this->mockApp->expects($this->any())
             ->method('get')
             ->with('response')
@@ -131,7 +135,6 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($mockRouter));
 
         // mock request-attributes has
-        $this->mockRequest->attributes = $this->createMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $this->mockRequest->attributes->expects($this->exactly(2))
             ->method('has')
             ->will($this->returnCallback(function ($paramName) {
@@ -161,7 +164,6 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($mockRouter));
 
         // mock request-attributes has
-        $this->mockRequest->attributes = $this->createMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $this->mockRequest->attributes->expects($this->once())
             ->method('has')
             ->will($this->returnValue(false));
