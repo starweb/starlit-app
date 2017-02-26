@@ -8,6 +8,7 @@
 
 namespace Starlit\App;
 
+use Starlit\App\Container\Container;
 use Starlit\App\Provider\BootableServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

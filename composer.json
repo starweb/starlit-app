@@ -12,6 +12,7 @@
     ],
     "require": {
         "php": ">=5.6.0",
+        "psr/container": "^1.0",
         "starlit/utils": "~0.1",
         "symfony/http-foundation": "^3.0",
         "symfony/routing": "^3.0",
@@ -24,6 +25,9 @@
     },
     "autoload": {
         "psr-4": {"Starlit\\App\\": "src"}
+    },
+    "provide": {
+        "psr/container": "1.0"
     },
     "suggest": {
         "starlit/paginator": "Required for use of the pagination view helper",

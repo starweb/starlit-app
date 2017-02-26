@@ -6,14 +6,16 @@
  * @license   BSD 3-Clause
  */
 
-namespace Starlit\App;
+namespace Starlit\App\Container;
+
+use Psr\Container\ContainerInterface;
 
 /**
- * Dependency injection container
+ * Dependency injection container.
  *
  * @author Andreas Nilsson <http://github.com/jandreasn>
  */
-class Container
+class Container implements ContainerInterface
 {
     /**
      * @var array
@@ -28,8 +30,10 @@ class Container
     /**
      * Set a DIC value.
      *
+     * Wrap objects provided in a closure for lazy loading.
+     *
      * @param string $key
-     * @param mixed  $value Wrap objects in a closure for lazy loading
+     * @param mixed  $value
      * @return Container
      */
     public function set($key, $value)
@@ -69,7 +73,7 @@ class Container
     public function get($key)
     {
         if (!$this->has($key)) {
-            throw new \InvalidArgumentException(sprintf('No application value with key "%s" is defined.', $key));
+            throw new NotFoundException(sprintf('No application value with key "%s" is defined.', $key));
         }
 
         // Get already instantiated object if it exist
@@ -96,7 +100,7 @@ class Container
     public function getNew($key)
     {
         if (!array_key_exists($key, $this->dicValues)) {
-            throw new \InvalidArgumentException(sprintf('No application value with key "%s" is defined.', $key));
+            throw new NotFoundException(sprintf('No application value with key "%s" is defined.', $key));
         } elseif (!is_object($this->dicValues[$key]) || !method_exists($this->dicValues[$key], '__invoke')) {
             throw new \InvalidArgumentException(sprintf('Application value "%s" is not invokable.', $key));
         }
