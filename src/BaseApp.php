@@ -8,6 +8,7 @@
 
 namespace Starlit\App;
 
+use Starlit\App\Provider\BootableServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -16,13 +17,12 @@ use Starlit\App\Provider\ServiceProviderInterface;
 use Starlit\App\Provider\StandardServiceProvider;
 use Starlit\App\Provider\ErrorServiceProvider;
 
-
 /**
  * Main framework application and bootstrap class, which also serves as a micro service/dependency injection container.
  *
  * @author Andreas Nilsson <http://github.com/jandreasn>
  */
-class BaseApp
+class BaseApp extends Container
 {
     /**
      * @const string
@@ -38,6 +38,16 @@ class BaseApp
      * @var string
      */
     protected $environment;
+
+    /**
+     * @var ServiceProviderInterface[]
+     */
+    protected $providers = [];
+
+    /**
+     * @var bool
+     */
+    protected $booted = false;
 
     /**
      * @var array
@@ -69,11 +79,12 @@ class BaseApp
     }
 
     /**
-     * Initializes the application.
-     *
-     * Put initialization code that should always be run here, but (NB!) make sure
-     * no objects are actually instanced here, because then mock objects can't be
-     * injected in their place. Place object instance code in the preHandle method.
+     * Initializes the application object.
+
+     * Override and put initialization code that should always be run as early as
+     * possible here, but make sure no objects are actually instanced here, because then
+     * mock objects can't be injected in their place. Place object instance code in
+     * the preHandle method.
      */
     protected function init()
     {
@@ -83,8 +94,28 @@ class BaseApp
             $this->setPhpSettings($this->config->get('phpSettings'));
         }
 
+        $this->registerProviders();
+    }
+
+    /**
+     * Register service providers.
+     */
+    protected function registerProviders()
+    {
         $this->register(new ErrorServiceProvider());
         $this->register(new StandardServiceProvider());
+    }
+
+    /**
+     * Register service provider.
+     *
+     * @param ServiceProviderInterface $provider
+     */
+    public function register(ServiceProviderInterface $provider)
+    {
+        $this->providers[] = $provider;
+
+        $provider->register($this);
     }
 
     /**
@@ -104,13 +135,24 @@ class BaseApp
     }
 
     /**
-     * Register service provider.
+     * Boot the application and its service providers.
      *
-     * @param ServiceProviderInterface $serviceProvider
+     * This is normally called by handle(). If requests are not handled
+     * this method will have to called manually to boot.
      */
-    public function register(ServiceProviderInterface $serviceProvider)
+    public function boot()
     {
-        $serviceProvider->register($this);
+        if ($this->booted) {
+            return;
+        }
+
+        foreach ($this->providers as $provider) {
+            if ($provider instanceof BootableServiceProviderInterface) {
+                $provider->boot($this);
+            }
+        }
+
+        $this->booted = true;
     }
 
     /**
@@ -147,6 +189,8 @@ class BaseApp
     public function handle(Request $request)
     {
         $this->set('request', $request);
+
+        $this->boot();
 
         if (($preHandleResponse = $this->preHandle($request))) {
             return $preHandleResponse;

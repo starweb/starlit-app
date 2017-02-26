@@ -13,7 +13,7 @@ use Starlit\App\BaseApp;
 /**
  * @author Andreas Nilsson <http://github.com/jandreasn>
  */
-interface ServiceProviderInterface
+interface BootableServiceProviderInterface extends ServiceProviderInterface
 {
-    public function register(BaseApp $app);
+    public function boot(BaseApp $app);
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Starlit\App;
 
+use Starlit\App\Provider\BootableServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -23,7 +24,6 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers \Starlit\App\Provider\ErrorServiceProvider::register
      * @covers \Starlit\App\Provider\StandardServiceProvider::register
-     * @covers \Starlit\App\BaseApp::getSession
      */
     public function testInit()
     {
@@ -39,6 +39,19 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Symfony\Component\Routing\Route', $this->app->getRouter()->getRoutes()->get('/'));
         $this->assertInstanceOf('Symfony\Component\Routing\Route', $this->app->getRouter()->getRoutes()->get('/{action}'));
         $this->assertInstanceOf('Symfony\Component\Routing\Route', $this->app->getRouter()->getRoutes()->get('/{controller}/{action}'));
+    }
+
+    public function testBoot()
+    {
+        // Guard
+        $this->assertFalse($this->app->has('testRegister'));
+        $this->assertFalse($this->app->has('testBoot'));
+
+        $this->app->register(new TestBootableServiceProvider());
+        $this->app->boot();
+
+        $this->assertTrue($this->app->get('testRegister'));
+        $this->assertTrue($this->app->get('testBoot'));
     }
 
     public function testHandle()
@@ -236,5 +249,18 @@ class TestBaseAppWithPostRouteResponse extends BaseApp
     protected function postRoute(Request $request)
     {
         return new Response('Post route response');
+    }
+}
+
+class TestBootableServiceProvider implements BootableServiceProviderInterface
+{
+    public function register(BaseApp $app)
+    {
+        $app->set('testRegister', true);
+    }
+
+    public function boot(BaseApp $app)
+    {
+        $app->set('testBoot', true);
     }
 }
