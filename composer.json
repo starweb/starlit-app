@@ -27,7 +27,7 @@
         "psr-4": {"Starlit\\App\\": "src"}
     },
     "provide": {
-        "psr/container": "1.0"
+        "psr/container-implementation": "1.0"
     },
     "suggest": {
         "starlit/paginator": "Required for use of the pagination view helper",
