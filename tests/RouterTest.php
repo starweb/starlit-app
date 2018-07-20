@@ -39,7 +39,10 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             'defaultModule' => 'modDef',
             'defaultController' => 'conDef',
             'defaultAction' => 'actDef',
-            'routes' => ['/index/index' => ['defaults' => ['controller' => 'index', 'action' => 'index']]],
+            'routes' => [
+                '/index/index' => ['defaults' => ['controller' => 'index', 'action' => 'index']],
+                'foo-bar' => ['path' => '/foo/bar', 'defaults' => ['controller' => 'foo', 'action' => 'bar']],
+            ],
         ];
 
         $tmpObject = new Router($this->mockApp, $fakeOptions);
@@ -58,6 +61,38 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(4, $this->router->getRoutes());
         $this->router->clearRoutes();
         $this->assertCount(0, $this->router->getRoutes());
+    }
+
+    public function testAddRouteWithName()
+    {
+        $route = new Route('/foo/bar', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
+
+        $this->assertCount(3, $this->router->getRoutes());
+        $this->router->addRoute($route, 'foo-bar');
+        $this->assertCount(4, ($routes = $this->router->getRoutes()));
+
+        $fetchedRoute = $routes->get('foo-bar');
+        $this->assertEquals('/foo/bar', $fetchedRoute->getPath());
+    }
+
+    public function testAddRouteWithHttpMethods()
+    {
+        $route = new Route(
+            '/foo/bar',
+            [],
+            ['controller' => '[a-z-]+', 'action' => '[a-z-]+'],
+            [],
+            '',
+            [],
+            ['POST', 'PUT', 'PATCH']
+        );
+
+        $this->assertCount(3, $this->router->getRoutes());
+        $this->router->addRoute($route);
+        $this->assertCount(4, ($routes = $this->router->getRoutes()));
+
+        $fetchedRoute = $routes->get('/foo/bar');
+        $this->assertCount(3, $fetchedRoute->getMethods());
     }
 
     public function testRoute()
