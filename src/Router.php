@@ -105,22 +105,23 @@ class Router
 
         if (!empty($options['routes'])) {
             foreach ($options['routes'] as $name => $routeConfig) {
-                if (array_key_exists('path', $routeConfig)) {
-                    $path = $routeConfig['path'];
-                } else {
-                    $path = $name;
-                }
-                $this->addRouteFromConfig($path, $routeConfig, $name);
+                $this->addRouteFromConfig($name, $routeConfig);
             }
         }
     }
 
     /**
-     * @param string $path
+     * @param string $name
      * @param array $routeConfig
      */
-    private function addRouteFromConfig($path, array $routeConfig, $name)
+    private function addRouteFromConfig($name, array $routeConfig)
     {
+        if (array_key_exists('path', $routeConfig)) {
+            $path = $routeConfig['path'];
+        } else {
+            $path = $name;
+        }
+
         $defaults = isset($routeConfig['defaults']) ? $routeConfig['defaults'] : [];
         $requirements = isset($routeConfig['requirements']) ? $routeConfig['requirements'] : [];
         $methods = isset($routeConfig['methods']) ? $routeConfig['methods'] : [];
@@ -155,11 +156,11 @@ class Router
      * Add route.
      *
      * @param Route $route
-     * @param string|null $route
+     * @param string|null $name
      */
     public function addRoute(Route $route, $name = null)
     {
-        if (null === $name) {
+        if ($name === null) {
             $name = $route->getPath();
         }
         $this->routes->add($name, $route);
