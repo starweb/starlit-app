@@ -104,8 +104,8 @@ class Router
         }
 
         if (!empty($options['routes'])) {
-            foreach ($options['routes'] as $name => $routeConfig) {
-                $this->addRouteFromConfig($name, $routeConfig);
+            foreach ($options['routes'] as $nameOrPath => $routeConfig) {
+                $this->addRouteFromConfig($nameOrPath, $routeConfig);
             }
         }
     }
