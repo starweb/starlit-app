@@ -122,7 +122,7 @@ class Router
     {
         $defaults = isset($routeConfig['defaults']) ? $routeConfig['defaults'] : [];
         $requirements = isset($routeConfig['requirements']) ? $routeConfig['requirements'] : [];
-        $methods = isset($routeConfig['methods']) ? $routeConfig['methods'] : [Request::METHOD_GET];
+        $methods = isset($routeConfig['methods']) ? $routeConfig['methods'] : [];
         $this->addRoute(new Route($path, $defaults, $requirements, [], '', [], $methods), $name);
     }
 
