@@ -39,7 +39,10 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             'defaultModule' => 'modDef',
             'defaultController' => 'conDef',
             'defaultAction' => 'actDef',
-            'routes' => ['/index/index' => ['defaults' => ['controller' => 'index', 'action' => 'index']]],
+            'routes' => [
+                '/index/index' => ['defaults' => ['controller' => 'index', 'action' => 'index']],
+                'foo-bar' => ['path' => '/foo/bar', 'defaults' => ['controller' => 'foo', 'action' => 'bar']],
+            ],
         ];
 
         $tmpObject = new Router($this->mockApp, $fakeOptions);
@@ -52,12 +55,45 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     public function testAddClearRoute()
     {
         $mockRoute = $this->createMock('\Symfony\Component\Routing\Route');
-
-        $this->assertCount(3, $this->router->getRoutes());
+        $numberOfRoutes = $this->router->getRoutes()->count();
         $this->router->addRoute($mockRoute);
-        $this->assertCount(4, $this->router->getRoutes());
+
+        $this->assertCount($numberOfRoutes + 1, $this->router->getRoutes());
         $this->router->clearRoutes();
         $this->assertCount(0, $this->router->getRoutes());
+    }
+
+    public function testAddRouteWithName()
+    {
+        $route = new Route('/foo/bar', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
+        $numberOfRoutes = $this->router->getRoutes()->count();
+        $this->router->addRoute($route, 'foo-bar');
+        $routes = $this->router->getRoutes();
+
+        $this->assertCount($numberOfRoutes + 1, $routes);
+
+        $fetchedRoute = $routes->get('foo-bar');
+        $this->assertEquals('/foo/bar', $fetchedRoute->getPath());
+    }
+
+    public function testAddRouteWithHttpMethods()
+    {
+        $route = new Route(
+            '/foo/bar',
+            [],
+            ['controller' => '[a-z-]+', 'action' => '[a-z-]+'],
+            [],
+            '',
+            [],
+            ['POST', 'PUT', 'PATCH']
+        );
+        $numberOfRoutes = $this->router->getRoutes()->count();
+        $this->router->addRoute($route);
+        $routes = $this->router->getRoutes();
+        $methods = $routes->get('/foo/bar')->getMethods();
+
+        $this->assertCount($numberOfRoutes + 1, $routes);
+        $this->assertCount(3, $methods);
     }
 
     public function testRoute()

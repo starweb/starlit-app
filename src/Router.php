@@ -104,12 +104,28 @@ class Router
         }
 
         if (!empty($options['routes'])) {
-            foreach ($options['routes'] as $path => $routeConfig) {
-                $defaults = isset($routeConfig['defaults']) ? $routeConfig['defaults'] : [];
-                $requirements = isset($routeConfig['requirements']) ? $routeConfig['requirements'] : [];
-                $this->addRoute(new Route($path, $defaults, $requirements));
+            foreach ($options['routes'] as $nameOrPath => $routeConfig) {
+                $this->addRouteFromConfig($nameOrPath, $routeConfig);
             }
         }
+    }
+
+    /**
+     * @param string $name
+     * @param array $routeConfig
+     */
+    private function addRouteFromConfig($name, array $routeConfig)
+    {
+        if (array_key_exists('path', $routeConfig)) {
+            $path = $routeConfig['path'];
+        } else {
+            $path = $name;
+        }
+
+        $defaults = isset($routeConfig['defaults']) ? $routeConfig['defaults'] : [];
+        $requirements = isset($routeConfig['requirements']) ? $routeConfig['requirements'] : [];
+        $methods = isset($routeConfig['methods']) ? $routeConfig['methods'] : [];
+        $this->addRoute(new Route($path, $defaults, $requirements, [], '', [], $methods), $name);
     }
 
     /**
@@ -140,11 +156,14 @@ class Router
      * Add route.
      *
      * @param Route $route
+     * @param string|null $name
      */
-    public function addRoute(Route $route)
+    public function addRoute(Route $route, $name = null)
     {
-        // We use path as name (sees no use for names)
-        $this->routes->add($route->getPath(), $route);
+        if ($name === null) {
+            $name = $route->getPath();
+        }
+        $this->routes->add($name, $route);
     }
 
     /**
