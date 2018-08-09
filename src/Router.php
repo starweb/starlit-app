@@ -104,10 +104,11 @@ class Router
         }
 
         if (!empty($options['routes'])) {
-            foreach ($options['routes'] as $path => $routeConfig) {
-                $name = $path;
+            foreach ($options['routes'] as $name => $routeConfig) {
                 if (array_key_exists('path', $routeConfig)) {
                     $path = $routeConfig['path'];
+                } else {
+                    $path = $name;
                 }
                 $this->addRouteFromConfig($path, $routeConfig, $name);
             }

@@ -55,10 +55,10 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     public function testAddClearRoute()
     {
         $mockRoute = $this->createMock('\Symfony\Component\Routing\Route');
-
-        $this->assertCount(3, $this->router->getRoutes());
+        $numberOfRoutes = $this->router->getRoutes()->count();
         $this->router->addRoute($mockRoute);
-        $this->assertCount(4, $this->router->getRoutes());
+
+        $this->assertCount($numberOfRoutes + 1, $this->router->getRoutes());
         $this->router->clearRoutes();
         $this->assertCount(0, $this->router->getRoutes());
     }
@@ -66,10 +66,11 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     public function testAddRouteWithName()
     {
         $route = new Route('/foo/bar', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
-
-        $this->assertCount(3, $this->router->getRoutes());
+        $numberOfRoutes = $this->router->getRoutes()->count();
         $this->router->addRoute($route, 'foo-bar');
-        $this->assertCount(4, ($routes = $this->router->getRoutes()));
+        $routes = $this->router->getRoutes();
+
+        $this->assertCount($numberOfRoutes + 1, $routes);
 
         $fetchedRoute = $routes->get('foo-bar');
         $this->assertEquals('/foo/bar', $fetchedRoute->getPath());
@@ -86,13 +87,13 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             [],
             ['POST', 'PUT', 'PATCH']
         );
-
-        $this->assertCount(3, $this->router->getRoutes());
+        $numberOfRoutes = $this->router->getRoutes()->count();
         $this->router->addRoute($route);
-        $this->assertCount(4, ($routes = $this->router->getRoutes()));
+        $routes = $this->router->getRoutes();
+        $methods = $routes->get('/foo/bar')->getMethods();
 
-        $fetchedRoute = $routes->get('/foo/bar');
-        $this->assertCount(3, $fetchedRoute->getMethods());
+        $this->assertCount($numberOfRoutes + 1, $routes);
+        $this->assertCount(3, $methods);
     }
 
     public function testRoute()
