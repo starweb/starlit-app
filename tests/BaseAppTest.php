@@ -50,8 +50,8 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
         $this->app->register(new TestBootableServiceProvider());
         $this->app->boot();
 
-        $this->assertTrue($this->app->get('testRegister'));
-        $this->assertTrue($this->app->get('testBoot'));
+        $this->assertTrue($this->app->get('testRegister')->registered);
+        $this->assertTrue($this->app->get('testBoot')->booted);
     }
 
     public function testHandle()
@@ -68,7 +68,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
             ->method('route')
             ->with($mockRequest)
             ->will($this->returnValue($mockController));
-        $this->app->set('router', $mockRouter);
+        $this->app->set(Router::class, $mockRouter);
 
 
         $response = $this->app->handle($mockRequest);
@@ -85,7 +85,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
             ->method('route')
             ->with($mockRequest)
             ->will($this->throwException(new \Symfony\Component\Routing\Exception\ResourceNotFoundException()));
-        $this->app->set('router', $mockRouter);
+        $this->app->set(Router::class, $mockRouter);
 
         $response = $this->app->handle($mockRequest);
 
@@ -108,14 +108,14 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
         $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
         $mockRouter = $this->createMock('\Starlit\App\Router');
         $mockController = $this->createMock('\Starlit\App\AbstractController');
-        ;
+
         $mockBaseApp = new TestBaseAppWithPostRouteResponse($this->fakeConfig, $this->fakeEnv);
 
         $mockRouter->expects($this->once())
             ->method('route')
             ->with($mockRequest)
             ->will($this->returnValue($mockController));
-        $mockBaseApp->set('router', $mockRouter);
+        $mockBaseApp->set(Router::class, $mockRouter);
 
         $response = $mockBaseApp->handle($mockRequest);
 
@@ -124,9 +124,9 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testGetValue()
     {
-        $this->app->setSomeKey('someValue');
+        $this->app->setSomeKey(new \stdClass());
 
-        $this->assertEquals('someValue', $this->app->getSomeKey());
+        $this->assertInstanceOf(\stdClass::class, $this->app->getSomeKey());
     }
 
     public function testGetFail()
@@ -256,11 +256,17 @@ class TestBootableServiceProvider implements BootableServiceProviderInterface
 {
     public function register(BaseApp $app)
     {
-        $app->set('testRegister', true);
+        $testObject = new \stdClass();
+        $testObject->registered = true;
+
+        $app->set('testRegister', $testObject);
     }
 
     public function boot(BaseApp $app)
     {
-        $app->set('testBoot', true);
+        $testObject = new \stdClass();
+        $testObject->booted = true;
+
+        $app->set('testBoot', $testObject);
     }
 }

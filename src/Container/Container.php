@@ -25,6 +25,11 @@ class Container implements ContainerInterface
     /**
      * @var array
      */
+    private $aliases = [];
+
+    /**
+     * @var array
+     */
     private $dicObjects = [];
 
     /**
@@ -36,10 +41,20 @@ class Container implements ContainerInterface
      * @param mixed  $value
      * @return Container
      */
-    public function set($key, $value)
+    public function set(string $key, $value): self
     {
+        if (!(\is_string($value) || \is_object($value))) {
+            throw new \InvalidArgumentException('Value must be a class name, an object instance, or a callable');
+        }
+
         $this->dicValues[$key] = $value;
         unset($this->dicObjects[$key]); // In case an object instance was stored for sharing
+
+        return $this;
+    }
+
+    public function alias(string $alias, string $key): self {
+        $this->aliases[$alias] = $key;
 
         return $this;
     }
@@ -50,22 +65,34 @@ class Container implements ContainerInterface
      * @param string $key
      * @return bool
      */
-    public function has($key)
+    public function has($key): bool
     {
-        return array_key_exists($key, $this->dicValues);
+        if (array_key_exists($key, $this->aliases)) {
+            $key = $this->aliases[$key];
+        }
+
+        if (array_key_exists($key, $this->dicValues)) {
+            return true;
+        }
+
+        return class_exists($key);
     }
 
     /**
      * @param string $key
      * @return bool
      */
-    public function hasInstance($key)
+    public function hasInstance($key): bool
     {
+        if (array_key_exists($key, $this->aliases)) {
+            $key = $this->aliases[$key];
+        }
+
         return isset($this->dicObjects[$key]);
     }
 
     /**
-     * Get the shared instance of a DIC object, or a DIC value if it's not an object.
+     * Get the shared instance of a DIC object
      *
      * @param string $key
      * @return mixed
@@ -73,7 +100,11 @@ class Container implements ContainerInterface
     public function get($key)
     {
         if (!$this->has($key)) {
-            throw new NotFoundException(sprintf('No application value with key "%s" is defined.', $key));
+            throw new NotFoundException(sprintf('Key "%s" could not be resolved.', $key));
+        }
+
+        if (array_key_exists($key, $this->aliases)) {
+            $key = $this->aliases[$key];
         }
 
         // Get already instantiated object if it exist
@@ -81,31 +112,57 @@ class Container implements ContainerInterface
             return $this->dicObjects[$key];
         }
 
-        // Check if it's an invokable (closure/anonymous function)
-        if (is_object($this->dicValues[$key]) && method_exists($this->dicValues[$key], '__invoke')) {
-            $this->dicObjects[$key] = $this->dicValues[$key]($this);
-
-            return $this->dicObjects[$key];
+        try {
+            if (array_key_exists($key, $this->dicValues)) {
+                if (\is_object($this->dicValues[$key])) {
+                    // Is it an invokable? (closure/anonymous function)
+                    if (method_exists($this->dicValues[$key], '__invoke')) {
+                        $instance = $this->dicValues[$key]($this);
+                    } else {
+                        $instance =  $this->dicValues[$key];
+                    }
+                } else {
+                    $instance = $this->resolveInstance($this->dicValues[$key]);
+                }
+            } else {
+                $instance =  $this->resolveInstance($key);
+            }
+        } catch (\ReflectionException $e) {
+            throw new NotFoundException(sprintf('Key "%s" could not be resolved. ', $key));
         }
 
-        return $this->dicValues[$key];
+        $this->dicObjects[$key] = $instance;
+
+        return $this->dicObjects[$key];
     }
 
     /**
-     * Get new instance of a DIC object.
+     * Get a new instance of a DIC object
      *
      * @param string $key
      * @return mixed
      */
     public function getNew($key)
     {
-        if (!array_key_exists($key, $this->dicValues)) {
-            throw new NotFoundException(sprintf('No application value with key "%s" is defined.', $key));
-        } elseif (!is_object($this->dicValues[$key]) || !method_exists($this->dicValues[$key], '__invoke')) {
-            throw new \InvalidArgumentException(sprintf('Application value "%s" is not invokable.', $key));
+        if (array_key_exists($key, $this->aliases)) {
+            $key = $this->aliases[$key];
         }
 
-        return $this->dicValues[$key]($this);
+        try {
+            if (array_key_exists($key, $this->dicValues)) {
+                if (\is_object($this->dicValues[$key])) {
+                    // Is it an invokable? (closure/anonymous function)
+                    if (method_exists($this->dicValues[$key], '__invoke')) {
+                        return $this->dicValues[$key]($this);
+                    }
+                    throw new \LogicException('The value for the specified key is a pre-made instance');
+                }
+                return $this->resolveInstance($this->dicValues[$key]);
+            }
+            return $this->resolveInstance($key);
+        } catch (\ReflectionException $e) {
+            throw new NotFoundException(sprintf('Key "%s" could not be resolved.', $key));
+        }
     }
 
     /**
@@ -115,7 +172,7 @@ class Container implements ContainerInterface
      *
      * @param string $key
      */
-    public function destroyInstance($key)
+    public function destroyInstance($key): void
     {
         unset($this->dicObjects[$key]);
     }
@@ -125,7 +182,7 @@ class Container implements ContainerInterface
      *
      * Will force new objects to be created on next call.
      */
-    public function destroyAllInstances()
+    public function destroyAllInstances(): void
     {
         $this->dicObjects = [];
 
@@ -153,7 +210,7 @@ class Container implements ContainerInterface
 
             return $this->get($key);
         } elseif (strpos($name, 'set') === 0) {
-            $argumentCount = count($arguments);
+            $argumentCount = \count($arguments);
             if ($argumentCount !== 1) {
                 throw new \BadMethodCallException("Invalid argument count[{$argumentCount}] for application {$name}()");
             }
@@ -164,5 +221,45 @@ class Container implements ContainerInterface
         } else {
             throw new \BadMethodCallException("No application method named {$name}()");
         }
+    }
+
+    /**
+     * Instantiate an object of named class using reflection to recursively to resolve dependencies
+     *
+     * @param string $className
+     * @return mixed
+     * @throws \ReflectionException
+     */
+    protected function resolveInstance(string $className) {
+        $class = new \ReflectionClass($className);
+
+        if (!$class->isInstantiable()) {
+            throw new \ReflectionException("$className cannot be instantiated");
+        }
+
+        return $class->newInstanceArgs($this->resolveParameters($class->getConstructor()->getParameters()));
+    }
+
+    /**
+     * Recursively resolve function parameters using reflection
+     *
+     * @param \ReflectionParameter[]
+     * @return mixed
+     */
+    protected function resolveParameters(array $parameters): array {
+        $values = [];
+
+        /**
+         * @var \ReflectionParameter $parameter
+         */
+        foreach ($parameters as $parameter) {
+            if (($parameterClass = $parameter->getClass()) && $this->has($parameterClass->getName())) {
+                $values[] = $this->get($parameterClass->getName());
+            } else {
+                $values[] = $parameter->getDefaultValue();
+            }
+        }
+
+        return $values;
     }
 }

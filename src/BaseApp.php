@@ -51,6 +51,11 @@ class BaseApp extends Container
     protected $booted = false;
 
     /**
+     * @var bool
+     */
+    protected $isCli = false;
+
+    /**
      * Constructor.
      *
      * @param array|Config $config
@@ -79,7 +84,7 @@ class BaseApp extends Container
      */
     protected function init()
     {
-        $this->set('cli', (PHP_SAPI === 'cli'));
+        $this->isCli = (PHP_SAPI === 'cli');
 
         if ($this->config->has('phpSettings')) {
             $this->setPhpSettings($this->config->get('phpSettings'));
@@ -179,7 +184,8 @@ class BaseApp extends Container
      */
     public function handle(Request $request)
     {
-        $this->set('request', $request);
+        $this->alias('request', Request::class);
+        $this->set(Request::class, $request);
 
         $this->boot();
 
@@ -237,9 +243,9 @@ class BaseApp extends Container
     /**
      * @return bool
      */
-    public function isCli()
+    public function isCli(): bool
     {
-        return $this->get('cli');
+        return $this->isCli;
     }
 
     /**

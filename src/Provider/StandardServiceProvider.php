@@ -9,6 +9,11 @@
 namespace Starlit\App\Provider;
 
 use Starlit\App\BaseApp;
+use Starlit\App\Router;
+use Starlit\App\View;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 /**
  * @author Andreas Nilsson <http://github.com/jandreasn>
@@ -20,29 +25,30 @@ class StandardServiceProvider implements ServiceProviderInterface
      */
     public function register(BaseApp $app)
     {
-        $app->set('sessionStorage', function (BaseApp $app) {
+        $app->alias('sessionStorage', SessionStorageInterface::class);
+        $app->set(SessionStorageInterface::class, function (BaseApp $app) {
             if ($app->isCli()) {
                 return new \Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage();
-            } else {
-                return new \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage();
             }
+            return new \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage();
         });
 
-        $app->set('session', function (BaseApp $app) {
-            return new \Symfony\Component\HttpFoundation\Session\Session($app->getNew('sessionStorage'));
+        $app->alias('session', Session::class);
+
+        $app->alias('router', Router::class);
+        $app->set(Router::class, function (BaseApp $app) {
+            return new Router($app, $app->getConfig()->get('router', []));
         });
 
-        $app->set('router', function (BaseApp $app) {
-            return new \Starlit\App\Router($app, $app->getConfig()->get('router', []));
-        });
-
-        $app->set('view', function (BaseApp $app) {
-            return new \Starlit\App\View($app->getConfig()->get('view', []));
+        $app->alias('view', View::class);
+        $app->set(View::class, function (BaseApp $app) {
+            return new View($app->getConfig()->get('view', []));
         });
 
         // Default response (force no cache)
-        $app->set('response', function () {
-            $response = new \Symfony\Component\HttpFoundation\Response();
+        $app->alias('response', Response::class);
+        $app->set(Response::class, function () {
+            $response = new Response();
 
             $response->headers->addCacheControlDirective('no-cache', true);
             $response->headers->addCacheControlDirective('max-age', 0);
