@@ -71,11 +71,7 @@ class Container implements ContainerInterface
             $key = $this->aliases[$key];
         }
 
-        if (array_key_exists($key, $this->dicValues)) {
-            return true;
-        }
-
-        return class_exists($key);
+        return array_key_exists($key, $this->dicValues);
     }
 
     /**
@@ -99,10 +95,6 @@ class Container implements ContainerInterface
      */
     public function get($key)
     {
-        if (!$this->has($key)) {
-            throw new NotFoundException(sprintf('Key "%s" could not be resolved.', $key));
-        }
-
         if (array_key_exists($key, $this->aliases)) {
             $key = $this->aliases[$key];
         }
@@ -142,7 +134,7 @@ class Container implements ContainerInterface
      * @param string $key
      * @return mixed
      */
-    public function getNew($key)
+    public function getNew(string $key)
     {
         if (array_key_exists($key, $this->aliases)) {
             $key = $this->aliases[$key];
@@ -224,29 +216,36 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Instantiate an object of named class using reflection to recursively to resolve dependencies
+     * Instantiate an object of named class, recursively resolving dependencies
      *
-     * @param string $className
+     * @param string $className Fully qualified class name
      * @return mixed
      * @throws \ReflectionException
      */
-    protected function resolveInstance(string $className) {
+    protected function resolveInstance(string $className)
+    {
         $class = new \ReflectionClass($className);
 
         if (!$class->isInstantiable()) {
-            throw new \ReflectionException("$className cannot be instantiated");
+            throw new \ReflectionException(sprintf('Class %s cannot be instantiated', $className));
         }
 
-        return $class->newInstanceArgs($this->resolveParameters($class->getConstructor()->getParameters()));
+
+        $parameterValues = $this->resolveParameters(
+            $class->getConstructor()->getParameters()
+        );
+
+        return $class->newInstanceArgs($parameterValues);
     }
 
     /**
-     * Recursively resolve function parameters using reflection
+     * Recursively resolve function parameters using type hints
      *
      * @param \ReflectionParameter[]
      * @return mixed
      */
-    protected function resolveParameters(array $parameters): array {
+    protected function resolveParameters(array $parameters): array
+    {
         $values = [];
 
         /**
