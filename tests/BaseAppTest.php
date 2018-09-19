@@ -4,6 +4,8 @@ namespace Starlit\App;
 use Starlit\App\Provider\BootableServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\Route;
 
 class BaseAppTest extends \PHPUnit_Framework_TestCase
 {
@@ -27,18 +29,19 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
      */
     public function testInit()
     {
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Session\Session', $this->app->getSession());
-        $this->assertInstanceOf('\Starlit\App\Router', $this->app->getRouter());
-        $this->assertInstanceOf('\Starlit\App\View', $this->app->getView());
+        $this->assertInstanceOf(Session::class, $this->app->get(Session::class));
+        $this->assertInstanceOf(Router::class, $this->app->get(Router::class));
+        $this->assertInstanceOf(View::class, $this->app->get(View::class));
 
         $this->assertEquals($this->fakeConfig['testkey'], $this->app->getConfig()->get('testkey'));
         $this->assertEquals($this->fakeConfig['phpSettings']['max_execution_time'], ini_get('max_execution_time'));
         $this->assertEquals($this->fakeConfig['phpSettings']['date']['timezone'], ini_get('date.timezone'));
 
         // test setup default routes
-        $this->assertInstanceOf('Symfony\Component\Routing\Route', $this->app->getRouter()->getRoutes()->get('/'));
-        $this->assertInstanceOf('Symfony\Component\Routing\Route', $this->app->getRouter()->getRoutes()->get('/{action}'));
-        $this->assertInstanceOf('Symfony\Component\Routing\Route', $this->app->getRouter()->getRoutes()->get('/{controller}/{action}'));
+        $router = $this->app->get(Router::class);
+        $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/'));
+        $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/{action}'));
+        $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/{controller}/{action}'));
     }
 
     public function testBoot()
@@ -57,7 +60,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     public function testHandle()
     {
         $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRouter = $this->createMock('\Starlit\App\Router');
+        $mockRouter = $this->createMock(Router::class);
         $mockController = $this->createMock('\Starlit\App\AbstractController');
 
         $mockController->expects($this->once())
@@ -80,7 +83,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     public function testHandleNotFound()
     {
         $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRouter = $this->createMock('\Starlit\App\Router');
+        $mockRouter = $this->createMock(Router::class);
         $mockRouter->expects($this->once())
             ->method('route')
             ->with($mockRequest)
@@ -106,7 +109,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     public function testHandlePostRouteResponse()
     {
         $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRouter = $this->createMock('\Starlit\App\Router');
+        $mockRouter = $this->createMock(Router::class);
         $mockController = $this->createMock('\Starlit\App\AbstractController');
 
         $mockBaseApp = new TestBaseAppWithPostRouteResponse($this->fakeConfig, $this->fakeEnv);
@@ -124,6 +127,13 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testGetValue()
     {
+        $this->app->set('testKey', new \stdClass());
+
+        $this->assertInstanceOf(\stdClass::class, $this->app->get('testKey'));
+    }
+
+    public function testGetValueCall()
+    {
         $this->app->setSomeKey(new \stdClass());
 
         $this->assertInstanceOf(\stdClass::class, $this->app->getSomeKey());
@@ -137,7 +147,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testGetNew()
     {
-        $this->assertInstanceOf('\Starlit\App\View', $this->app->getNewView());
+        $this->assertInstanceOf(View::class, $this->app->getNew(View::class));
     }
 
     public function testGetNewUndefined()
@@ -156,7 +166,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testHasInstanceIsTrue()
     {
-        $this->app->getView();
+        $this->app->get(View::class);
         $this->assertTrue($this->app->hasInstance('view'));
     }
 
@@ -226,14 +236,14 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     public function testGetRequestReturnsRequest()
     {
         $mockRequest = $this->createMock(Request::class);
-        $this->app->set('request', $mockRequest);
+        $this->app->set(Request::class, $mockRequest);
 
-        $this->assertSame($mockRequest, $this->app->getRequest());
+        $this->assertSame($mockRequest, $this->app->get(Request::class));
     }
 
-    public function testRequestReturnsNull()
+    public function testHasNoRequest()
     {
-        $this->assertNull($this->app->getRequest());
+        $this->assertFalse($this->app->has(Request::class));
     }
 }
 

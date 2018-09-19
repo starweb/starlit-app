@@ -57,7 +57,7 @@ abstract class AbstractController
         $this->app = $app;
         $this->request = $request;
 
-        $this->view = $this->app->getNew('view');
+        $this->view = $this->app->getNew(View::class);
         $this->view->setRequest($this->request);
 
         $this->init();
@@ -111,11 +111,12 @@ abstract class AbstractController
     public function dispatch($action = null, array $actionArgs = [])
     {
         // If not special action is provided, try to get from request
+        $router = $this->app->get(Router::class);
         $action = Str::camelToSeparator(
-            $action ?: $this->app->getRouter()->getRequestAction($this->request),
+            $action ?: $router->getRequestAction($this->request),
             '-'
         );
-        $actionMethod = $this->app->getRouter()->getActionMethod($action);
+        $actionMethod = $router->getActionMethod($action);
         $collectedArgs = $this->getCollectedDispatchArgs($actionMethod, $actionArgs);
 
         // Call pre dispatch method and return it's response if there is one (uncommon)
@@ -125,7 +126,7 @@ abstract class AbstractController
         }
 
         // Call action method
-        $actionResponse = call_user_func_array([$this, $actionMethod], $collectedArgs);
+        $actionResponse = \call_user_func_array([$this, $actionMethod], $collectedArgs);
 
         $this->postDispatch();
 
@@ -183,19 +184,19 @@ abstract class AbstractController
         if ($actionResponse instanceof Response) {
             return $actionResponse->prepare($this->request);
         } elseif ($actionResponse !== null) {
-            return $this->app->get('response')->setContent((string) $actionResponse)->prepare($this->request);
+            return $this->app->get(Response::class)->setContent((string) $actionResponse)->prepare($this->request);
         } elseif ($this->autoRenderView) {
             $viewScript = $this->autoRenderViewScript ?: $this->getAutoRenderViewScriptName(
                 $action,
-                $this->app->getRouter()->getRequestController($this->request),
-                $this->app->getRouter()->getRequestModule($this->request)
+                $this->app->get(Router::class)->getRequestController($this->request),
+                $this->app->get(Router::class)->getRequestModule($this->request)
             );
 
-            return $this->app->get('response')->setContent($this->view->render($viewScript, true))
+            return $this->app->get(Response::class)->setContent($this->view->render($viewScript, true))
                 ->prepare($this->request);
         } else {
             // Empty response if no other response is set
-            return $this->app->get('response')->setContent('')
+            return $this->app->get(Response::class)->setContent('')
                 ->prepare($this->request);
         }
     }
@@ -238,10 +239,11 @@ abstract class AbstractController
             return $this->dispatch($action, $actionArgs);
         // Forward to another controller
         } else {
-            $controller = $controller ?: $this->app->getRouter()->getRequestController($this->request);
-            $module = $module ?: $this->app->getRouter()->getRequestModule($this->request);
+            $router = $this->app->get(Router::class);
+            $controller = $controller ?: $router->getRequestController($this->request);
+            $module = $module ?: $router->getRequestModule($this->request);
 
-            $controllerClass = $this->app->getRouter()->getControllerClass($controller, $module);
+            $controllerClass = $router->getControllerClass($controller, $module);
             $actualController = new $controllerClass($this->app, $this->request);
 
             // Set new request properties

@@ -25,7 +25,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->view = $this->createMock('\Starlit\App\View');
         $this->mockApp->expects($this->any())
             ->method('getNew')
-            ->with('view')
+            ->with(View::class)
             ->will($this->returnValue($this->view));
 
         $this->router = new Router($this->mockApp, [

@@ -194,7 +194,7 @@ class BaseApp extends Container
         }
 
         try {
-            $controller = $this->getRouter()->route($request);
+            $controller = $this->get(Router::class)->route($request);
 
             if (($postRouteResponse = $this->postRoute($request))) {
                 return $postRouteResponse;
@@ -253,7 +253,7 @@ class BaseApp extends Container
      */
     public function getSession()
     {
-        return $this->get('session'); // Makes this method faster by bypassing __call() (which is quite slow).
+        return $this->get(Session::class); // Makes this method faster by bypassing __call() (which is quite slow).
     }
 
     /**
@@ -261,7 +261,7 @@ class BaseApp extends Container
      */
     public function getRouter()
     {
-        return $this->get('router'); // Makes this method faster by bypassing __call() (which is quite slow).
+        return $this->get(Router::class); // Makes this method faster by bypassing __call() (which is quite slow).
     }
 
     /**
@@ -269,7 +269,7 @@ class BaseApp extends Container
      */
     public function getRequest()
     {
-        return $this->has('request') ? $this->get('request') : null;
+        return $this->has(Request::class) ? $this->get(Request::class) : null;
     }
 
     /**
