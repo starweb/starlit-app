@@ -53,7 +53,8 @@ class Container implements ContainerInterface
         return $this;
     }
 
-    public function alias(string $alias, string $key): self {
+    public function alias(string $alias, string $key): self
+    {
         $this->aliases[$alias] = $key;
 
         return $this;
