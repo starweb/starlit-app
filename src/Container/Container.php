@@ -232,9 +232,11 @@ class Container implements ContainerInterface
         }
 
 
-        $parameterValues = $this->resolveParameters(
-            $class->getConstructor()->getParameters()
-        );
+        if (($constructor = $class->getConstructor())) {
+            $parameterValues = $this->resolveParameters(
+                $constructor->getParameters()
+            );
+        }
 
         return $class->newInstanceArgs($parameterValues);
     }
