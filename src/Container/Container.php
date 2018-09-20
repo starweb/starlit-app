@@ -232,6 +232,7 @@ class Container implements ContainerInterface
         }
 
 
+        $parameterValues = [];
         if (($constructor = $class->getConstructor())) {
             $parameterValues = $this->resolveParameters(
                 $constructor->getParameters()
