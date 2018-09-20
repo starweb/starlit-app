@@ -253,7 +253,7 @@ class Container implements ContainerInterface
          * @var \ReflectionParameter $parameter
          */
         foreach ($parameters as $parameter) {
-            if (($parameterClass = $parameter->getClass()) && $this->has($parameterClass->getName())) {
+            if (($parameterClass = $parameter->getClass())) {
                 $values[] = $this->get($parameterClass->getName());
             } else {
                 $values[] = $parameter->getDefaultValue();
