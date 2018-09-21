@@ -107,15 +107,16 @@ class Container implements ContainerInterface
 
         try {
             if (array_key_exists($key, $this->dicValues)) {
-                if (\is_object($this->dicValues[$key])) {
+                $value = $this->dicValues[$key];
+                if (\is_object($value)) {
                     // Is it an invokable? (closure/anonymous function)
-                    if (method_exists($this->dicValues[$key], '__invoke')) {
-                        $instance = $this->dicValues[$key]($this);
+                    if (method_exists($value, '__invoke')) {
+                        $instance = $value($this);
                     } else {
-                        $instance =  $this->dicValues[$key];
+                        $instance =  $value;
                     }
                 } else {
-                    $instance = $this->resolveInstance($this->dicValues[$key]);
+                    $instance = $this->resolveInstance($value);
                 }
             } else {
                 $instance =  $this->resolveInstance($key);
