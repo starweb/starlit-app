@@ -231,7 +231,6 @@ class Container implements ContainerInterface
             throw new \ReflectionException(sprintf('Class %s cannot be instantiated', $className));
         }
 
-
         $parameterValues = [];
         if (($constructor = $class->getConstructor())) {
             $parameterValues = $this->resolveParameters(
@@ -257,7 +256,12 @@ class Container implements ContainerInterface
          */
         foreach ($parameters as $parameter) {
             if (($parameterClass = $parameter->getClass())) {
-                $values[] = $this->get($parameterClass->getName());
+                try {
+                    $values[] = $this->get($parameterClass->getName());
+                }
+                catch (NotFoundException $e) { // We're probably dealing with an unmapped interface here
+                    $values[] = $parameter->getDefaultValue();
+                }
             } else {
                 $values[] = $parameter->getDefaultValue();
             }
