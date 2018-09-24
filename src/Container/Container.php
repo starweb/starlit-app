@@ -96,7 +96,7 @@ class Container implements ContainerInterface
      */
     public function get($key)
     {
-        if (array_key_exists($key, $this->aliases)) {
+        if (isset($this->aliases[$key])) {
             $key = $this->aliases[$key];
         }
 
@@ -106,7 +106,7 @@ class Container implements ContainerInterface
         }
 
         try {
-            if (array_key_exists($key, $this->dicValues)) {
+            if (isset($this->dicValues[$key])) {
                 $value = $this->dicValues[$key];
                 if (\is_object($value)) {
                     // Is it an invokable? (closure/anonymous function)
@@ -138,20 +138,21 @@ class Container implements ContainerInterface
      */
     public function getNew(string $key)
     {
-        if (array_key_exists($key, $this->aliases)) {
+        if (isset($this->aliases[$key])) {
             $key = $this->aliases[$key];
         }
 
         try {
-            if (array_key_exists($key, $this->dicValues)) {
-                if (\is_object($this->dicValues[$key])) {
+            if (isset($this->dicValues[$key])) {
+                $value = $this->dicValues[$key];
+                if (\is_object($value)) {
                     // Is it an invokable? (closure/anonymous function)
-                    if (method_exists($this->dicValues[$key], '__invoke')) {
-                        return $this->dicValues[$key]($this);
+                    if (method_exists($value, '__invoke')) {
+                        return $value($this);
                     }
                     throw new \LogicException('The value for the specified key is a pre-made instance');
                 }
-                return $this->resolveInstance($this->dicValues[$key]);
+                return $this->resolveInstance($value);
             }
             return $this->resolveInstance($key);
         } catch (\ReflectionException $e) {
@@ -224,7 +225,7 @@ class Container implements ContainerInterface
      * @return mixed
      * @throws \ReflectionException
      */
-    protected function resolveInstance(string $className)
+    private function resolveInstance(string $className)
     {
         $class = new \ReflectionClass($className);
 
@@ -248,7 +249,7 @@ class Container implements ContainerInterface
      * @param \ReflectionParameter[]
      * @return mixed
      */
-    protected function resolveParameters(array $parameters): array
+    private function resolveParameters(array $parameters): array
     {
         $values = [];
 
