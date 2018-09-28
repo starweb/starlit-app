@@ -68,11 +68,11 @@ class Container implements ContainerInterface
      */
     public function has($key): bool
     {
-        if (array_key_exists($key, $this->aliases)) {
+        if (isset($this->aliases[$key])) {
             $key = $this->aliases[$key];
         }
 
-        return array_key_exists($key, $this->dicValues);
+        return isset($this->dicValues[$key]);
     }
 
     /**
@@ -81,7 +81,7 @@ class Container implements ContainerInterface
      */
     public function hasInstance($key): bool
     {
-        if (array_key_exists($key, $this->aliases)) {
+        if (isset($this->aliases[$key])) {
             $key = $this->aliases[$key];
         }
 
@@ -107,19 +107,9 @@ class Container implements ContainerInterface
 
         try {
             if (isset($this->dicValues[$key])) {
-                $value = $this->dicValues[$key];
-                if (\is_object($value)) {
-                    // Is it an invokable? (closure/anonymous function)
-                    if (method_exists($value, '__invoke')) {
-                        $instance = $value($this);
-                    } else {
-                        $instance =  $value;
-                    }
-                } else {
-                    $instance = $this->resolveInstance($value);
-                }
+                $instance = $this->getValueInstance($key);
             } else {
-                $instance =  $this->resolveInstance($key);
+                $instance = $this->resolveInstance($key);
             }
         } catch (\ReflectionException $e) {
             throw new NotFoundException(sprintf('Key "%s" could not be resolved. ', $key));
@@ -144,20 +134,25 @@ class Container implements ContainerInterface
 
         try {
             if (isset($this->dicValues[$key])) {
-                $value = $this->dicValues[$key];
-                if (\is_object($value)) {
-                    // Is it an invokable? (closure/anonymous function)
-                    if (method_exists($value, '__invoke')) {
-                        return $value($this);
-                    }
-                    throw new \LogicException('The value for the specified key is a pre-made instance');
-                }
-                return $this->resolveInstance($value);
+                return $this->getValueInstance($key);
             }
             return $this->resolveInstance($key);
         } catch (\ReflectionException $e) {
             throw new NotFoundException(sprintf('Key "%s" could not be resolved.', $key));
         }
+    }
+
+    private function getValueInstance(string $key)
+    {
+        $value = $this->dicValues[$key];
+        if (\is_object($value)) {
+            // Is it an invokable? (closure/anonymous function)
+            if (method_exists($value, '__invoke')) {
+                return $value($this);
+            }
+            return $value;
+        }
+        return $this->resolveInstance($value);
     }
 
     /**
