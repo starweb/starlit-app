@@ -46,15 +46,16 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testBoot()
     {
-        // Guard
-        $this->assertFalse($this->app->has('testRegister'));
-        $this->assertFalse($this->app->has('testBoot'));
+        $mockProvider = $this->createMock(BootableServiceProviderInterface::class);
+        $mockProvider->expects($this->once())
+            ->method('register')
+            ->with($this->app);
+        $mockProvider->expects($this->once())
+            ->method('boot')
+            ->with($this->app);
 
-        $this->app->register(new TestBootableServiceProvider());
+        $this->app->register($mockProvider);
         $this->app->boot();
-
-        $this->assertTrue($this->app->get('testRegister')->registered);
-        $this->assertTrue($this->app->get('testBoot')->booted);
     }
 
     public function testHandle()
@@ -259,24 +260,5 @@ class TestBaseAppWithPostRouteResponse extends BaseApp
     protected function postRoute(Request $request)
     {
         return new Response('Post route response');
-    }
-}
-
-class TestBootableServiceProvider implements BootableServiceProviderInterface
-{
-    public function register(BaseApp $app)
-    {
-        $testObject = new \stdClass();
-        $testObject->registered = true;
-
-        $app->set('testRegister', $testObject);
-    }
-
-    public function boot(BaseApp $app)
-    {
-        $testObject = new \stdClass();
-        $testObject->booted = true;
-
-        $app->set('testBoot', $testObject);
     }
 }
