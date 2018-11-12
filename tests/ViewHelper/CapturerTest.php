@@ -20,7 +20,7 @@ class CapturerTest extends \PHPUnit_Framework_TestCase
         $invokableObject = $this->capturerHelper;
         $return = $invokableObject('test1');
 
-        $this->assertInstanceOf('\Starlit\App\ViewHelper\Capturer', $return);
+        $this->assertInstanceOf(\Starlit\App\ViewHelper\Capturer::class, $return);
         $this->assertEquals('test1', $return->getContentKey());
     }
 
@@ -45,19 +45,19 @@ class CapturerTest extends \PHPUnit_Framework_TestCase
         echo 'teeest';
         $return = $helper->end();
 
-        $this->assertInstanceOf('\Starlit\App\ViewHelper\Capturer', $return);
+        $this->assertInstanceOf(\Starlit\App\ViewHelper\Capturer::class, $return);
         $this->assertEquals('teeest', $helper->getContent());
     }
 
     public function testEndFail()
     {
-        $this->expectException('\LogicException');
+        $this->expectException(\LogicException::class);
         $this->capturerHelper->end();
     }
 
     public function testGetContentFail()
     {
-        $this->expectException('\LogicException');
+        $this->expectException(\LogicException::class);
         $this->capturerHelper->getContent();
     }
 
@@ -66,7 +66,7 @@ class CapturerTest extends \PHPUnit_Framework_TestCase
         $invokableObject = $this->capturerHelper;
         $helper = $invokableObject('test1');
 
-        $this->expectException('\LogicException');
+        $this->expectException(\LogicException::class);
         $helper->getContent();
     }
 

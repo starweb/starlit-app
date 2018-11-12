@@ -31,7 +31,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertInstanceOf(Session::class, $this->app->get(Session::class));
         $this->assertInstanceOf(Router::class, $this->app->get(Router::class));
-        $this->assertInstanceOf(View::class, $this->app->get(View::class));
+        $this->assertInstanceOf(ViewInterface::class, $this->app->get(ViewInterface::class));
 
         $this->assertEquals($this->fakeConfig['testkey'], $this->app->getConfig()->get('testkey'));
         $this->assertEquals($this->fakeConfig['phpSettings']['max_execution_time'], ini_get('max_execution_time'));
@@ -60,9 +60,9 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testHandle()
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockRouter = $this->createMock(Router::class);
-        $mockController = $this->createMock('\Starlit\App\AbstractController');
+        $mockController = $this->createMock(\Starlit\App\AbstractController::class);
 
         $mockController->expects($this->once())
             ->method('dispatch')
@@ -77,13 +77,13 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
         $response = $this->app->handle($mockRequest);
 
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Response', $response);
+        $this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
         $this->assertEquals('respnz', $response->getContent());
     }
 
     public function testHandleNotFound()
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockRouter = $this->createMock(Router::class);
         $mockRouter->expects($this->once())
             ->method('route')
@@ -93,13 +93,13 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
         $response = $this->app->handle($mockRequest);
 
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Response', $response);
+        $this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
         $this->assertEquals(404, $response->getStatusCode());
     }
 
     public function testHandlePreHandleResponse()
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
 
         $mockBaseApp = new TestBaseAppWithPreHandleResponse($this->fakeConfig, $this->fakeEnv);
         $response = $mockBaseApp->handle($mockRequest);
@@ -109,9 +109,9 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testHandlePostRouteResponse()
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockRouter = $this->createMock(Router::class);
-        $mockController = $this->createMock('\Starlit\App\AbstractController');
+        $mockController = $this->createMock(\Starlit\App\AbstractController::class);
 
         $mockBaseApp = new TestBaseAppWithPostRouteResponse($this->fakeConfig, $this->fakeEnv);
 
@@ -142,18 +142,18 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testGetFail()
     {
-        $this->expectException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $this->app->get('invalidKey');
     }
 
     public function testGetNew()
     {
-        $this->assertInstanceOf(View::class, $this->app->getNew(View::class));
+        $this->assertInstanceOf(ViewInterface::class, $this->app->getNew(ViewInterface::class));
     }
 
     public function testGetNewUndefined()
     {
-        $this->expectException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $this->app->getNew('bla');
     }
 
@@ -161,30 +161,30 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     {
         $this->app->set('someKey', 'someValue');
 
-        $this->expectException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $this->app->getNew('someKey');
     }
 
     public function testHasInstanceIsTrue()
     {
-        $this->app->get(View::class);
-        $this->assertTrue($this->app->hasInstance('view'));
+        $this->app->get(ViewInterface::class);
+        $this->assertTrue($this->app->hasInstance(ViewInterface::class));
     }
 
     public function testHasInstanceIsFalse()
     {
-        $this->assertFalse($this->app->hasInstance('nonExistantObject'));
+        $this->assertFalse($this->app->hasInstance('nonExistentObject'));
     }
 
     public function test__callFail()
     {
-        $this->expectException('\BadMethodCallException');
+        $this->expectException(\BadMethodCallException::class);
         $this->app->setBla();
     }
 
     public function test__callFail2()
     {
-        $this->expectException('\BadMethodCallException');
+        $this->expectException(\BadMethodCallException::class);
         $this->app->fail();
     }
 

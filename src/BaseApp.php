@@ -13,7 +13,6 @@ use Starlit\App\Provider\BootableServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Starlit\App\Provider\ServiceProviderInterface;
 use Starlit\App\Provider\StandardServiceProvider;
 use Starlit\App\Provider\ErrorServiceProvider;
@@ -162,6 +161,7 @@ class BaseApp extends Container
      */
     protected function preHandle(Request $request)
     {
+        return null;
     }
 
     /**
@@ -174,6 +174,7 @@ class BaseApp extends Container
      */
     protected function postRoute(Request $request)
     {
+        return null;
     }
 
     /**
@@ -246,22 +247,6 @@ class BaseApp extends Container
     public function isCli(): bool
     {
         return $this->isCli;
-    }
-
-    /**
-     * @return Session
-     */
-    public function getSession()
-    {
-        return $this->get(Session::class); // Makes this method faster by bypassing __call() (which is quite slow).
-    }
-
-    /**
-     * @return Router
-     */
-    public function getRouter()
-    {
-        return $this->get(Router::class); // Makes this method faster by bypassing __call() (which is quite slow).
     }
 
     /**

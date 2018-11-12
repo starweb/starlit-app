@@ -57,7 +57,7 @@ abstract class AbstractController
         $this->app = $app;
         $this->request = $request;
 
-        $this->view = $this->app->getNew(View::class);
+        $this->view = $this->app->getNew(ViewInterface::class);
         $this->view->setRequest($this->request);
 
         $this->init();
@@ -82,6 +82,7 @@ abstract class AbstractController
      */
     protected function preDispatch($action)
     {
+        return null;
     }
 
     /**

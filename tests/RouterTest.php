@@ -19,13 +19,13 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         // Mock app
-        $this->mockApp = $this->createMock('\Starlit\App\BaseApp');
+        $this->mockApp = $this->createMock(\Starlit\App\BaseApp::class);
 
         // Mock app view (needed for controller instantiation)
-        $this->view = $this->createMock('\Starlit\App\View');
+        $this->view = $this->createMock(\Starlit\App\View::class);
         $this->mockApp->expects($this->any())
             ->method('getNew')
-            ->with(View::class)
+            ->with(ViewInterface::class)
             ->will($this->returnValue($this->view));
 
         $this->router = new Router($this->mockApp, [
@@ -54,7 +54,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function testAddClearRoute()
     {
-        $mockRoute = $this->createMock('\Symfony\Component\Routing\Route');
+        $mockRoute = $this->createMock(\Symfony\Component\Routing\Route::class);
         $numberOfRoutes = $this->router->getRoutes()->count();
         $this->router->addRoute($mockRoute);
 
@@ -99,13 +99,13 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     public function testRoute()
     {
         // Mock controller get
-        $partiallyMockedRouter = $this->getMockBuilder('\Starlit\App\Router')
+        $partiallyMockedRouter = $this->getMockBuilder(\Starlit\App\Router::class)
             ->setMethods(['getControllerClass'])
             ->setConstructorArgs([$this->mockApp])
             ->getMock();
         $partiallyMockedRouter->expects($this->once())
             ->method('getControllerClass')
-            ->will($this->returnValue('\Starlit\App\RouterTestController'));
+            ->will($this->returnValue(\Starlit\App\RouterTestController::class));
 
         // Set routes
         $route = new Route('/{controller}/{action}', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
@@ -115,7 +115,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $request = Request::create('/index/some-other');
         $controller = $partiallyMockedRouter->route($request);
 
-        $this->assertInstanceOf('\Starlit\App\RouterTestController', $controller);
+        $this->assertInstanceOf(\Starlit\App\RouterTestController::class, $controller);
     }
 
     public function testRouteInvalidController()
@@ -127,20 +127,20 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         // Route request
         $request = Request::create('/index/some-other');
 
-        $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
+        $this->expectException(\Symfony\Component\Routing\Exception\ResourceNotFoundException::class);
         $this->router->route($request);
     }
 
     public function testRouteInvalidAction()
     {
         // Mock controller get
-        $partiallyMockedRouter = $this->getMockBuilder('\Starlit\App\Router')
+        $partiallyMockedRouter = $this->getMockBuilder(\Starlit\App\Router::class)
             ->setMethods(['getControllerClass'])
             ->setConstructorArgs([$this->mockApp])
             ->getMock();
         $partiallyMockedRouter->expects($this->once())
             ->method('getControllerClass')
-            ->will($this->returnValue('\Starlit\App\RouterTestController'));
+            ->will($this->returnValue(\Starlit\App\RouterTestController::class));
 
         // Set routes
         $route = new Route('/{controller}/{action}', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
@@ -149,26 +149,26 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         // Route request
         $request = Request::create('/index/some-other-other');
 
-        $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
+        $this->expectException(\Symfony\Component\Routing\Exception\ResourceNotFoundException::class);
         $partiallyMockedRouter->route($request);
     }
 
     public function testGetControllerClass()
     {
         $controllerClass = $this->router->getControllerClass('test');
-        $this->assertEquals('\Controller\\TestController', $controllerClass);
+        $this->assertEquals('\Controller\TestController', $controllerClass);
     }
 
     public function testGetSeparatedControllerClass()
     {
         $controllerClass = $this->router->getControllerClass('test-Two');
-        $this->assertEquals('\\Controller\\TestTwoController', $controllerClass);
+        $this->assertEquals('\Controller\TestTwoController', $controllerClass);
     }
 
     public function testGetControllerClassWithModule()
     {
         $controllerClass = $this->router->getControllerClass('login', 'admin');
-        $this->assertEquals('\\Admin\\Controller\\LoginController', $controllerClass);
+        $this->assertEquals('\Admin\Controller\LoginController', $controllerClass);
     }
 
     public function testGetActionMethod()

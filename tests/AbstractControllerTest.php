@@ -74,7 +74,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
         $rObject = new \ReflectionObject($this->testController);
         $prop = $rObject->getProperty('view');
         $prop->setAccessible(true);
-        $this->assertInstanceOf('\Starlit\App\View', $prop->getValue($this->testController));
+        $this->assertInstanceOf(\Starlit\App\View::class, $prop->getValue($this->testController));
     }
 
     public function testSetAutoRenderView()
@@ -173,7 +173,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->method('has')
             ->will($this->returnValue(false));
 
-        $this->expectException('\LogicException');
+        $this->expectException(\LogicException::class);
         $this->testController->dispatch('some-other');
     }
 
@@ -186,7 +186,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->with('none')
             ->will($this->returnValue('noneAction'));
 
-        $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
+        $this->expectException(\Symfony\Component\Routing\Exception\ResourceNotFoundException::class);
         $this->testController->dispatch('none');
     }
 
@@ -199,7 +199,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->with('invalid')
             ->will($this->returnValue('invalidAction'));
 
-        $this->expectException('\Symfony\Component\Routing\Exception\ResourceNotFoundException');
+        $this->expectException(\Symfony\Component\Routing\Exception\ResourceNotFoundException::class);
         $this->testController->dispatch('invalid');
     }
 

@@ -21,7 +21,7 @@ use Starlit\Utils\Str;
  *
  * @author Andreas Nilsson <http://github.com/jandreasn>
  */
-class Router
+class Router implements RouterInterface
 {
     /**
      * @var BaseApp
@@ -85,7 +85,7 @@ class Router
     /**
      * @param array $options
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): void
     {
         if (isset($options['controllerNamespace'])) {
             $this->controllerNamespace = $options['controllerNamespace'];
@@ -114,7 +114,7 @@ class Router
      * @param string $name
      * @param array $routeConfig
      */
-    private function addRouteFromConfig($name, array $routeConfig)
+    private function addRouteFromConfig($name, array $routeConfig): void
     {
         if (array_key_exists('path', $routeConfig)) {
             $path = $routeConfig['path'];
@@ -131,7 +131,7 @@ class Router
     /**
      * @return string
      */
-    public function getDefaultModule()
+    public function getDefaultModule(): string
     {
         return $this->defaultModule;
     }
@@ -139,7 +139,7 @@ class Router
     /**
      * @return string
      */
-    public function getDefaultController()
+    public function getDefaultController(): string
     {
         return $this->defaultController;
     }
@@ -147,7 +147,7 @@ class Router
     /**
      * @return string
      */
-    public function getDefaultAction()
+    public function getDefaultAction(): string
     {
         return $this->defaultAction;
     }
@@ -158,7 +158,7 @@ class Router
      * @param Route $route
      * @param string|null $name
      */
-    public function addRoute(Route $route, $name = null)
+    public function addRoute(Route $route, string $name = null): void
     {
         if ($name === null) {
             $name = $route->getPath();
@@ -169,17 +169,12 @@ class Router
     /**
      * Clear any added routes.
      */
-    public function clearRoutes()
+    public function clearRoutes(): void
     {
         $this->routes = new RouteCollection();
     }
 
-    /**
-     * Get routes collection.
-     *
-     * @return RouteCollection|Route[]
-     */
-    public function getRoutes()
+    public function getRoutes(): RouteCollection
     {
         return $this->routes;
     }
@@ -187,11 +182,9 @@ class Router
     /**
      * Resolve controller action and return callable properties.
      *
-     * @param Request $request
-     * @return AbstractController
      * @throws ResourceNotFoundException
      */
-    public function route(Request $request)
+    public function route(Request $request): AbstractController
     {
         // Match route
         $context = new RequestContext();
@@ -229,11 +222,11 @@ class Router
     }
 
     /**
-     * @param string      $controller Controller name as lowercase separated string
+     * @param string      $controller Controller name as lowercase dash-separated string
      * @param string|null $module     Module as lowercase separated string
      * @return string
      */
-    public function getControllerClass($controller, $module = null)
+    public function getControllerClass(string $controller, string $module = null): string
     {
         $moduleNamespace = null;
         if (!empty($module)) {
@@ -250,10 +243,10 @@ class Router
     }
 
     /**
-     * @param string $action Action name as lowercase separated string
+     * @param string $action Action name as lowercase dash-separated string
      * @return string
      */
-    public function getActionMethod($action)
+    public function getActionMethod(string $action): string
     {
         return Str::separatorToCamel($action, '-') . $this->actionMethodSuffix;
     }
@@ -262,7 +255,7 @@ class Router
      * @param Request $request
      * @return string
      */
-    public function getRequestModule(Request $request)
+    public function getRequestModule(Request $request): ?string
     {
         return $request->attributes->get('module', $this->defaultModule);
     }
@@ -271,7 +264,7 @@ class Router
      * @param Request $request
      * @return string
      */
-    public function getRequestController(Request $request)
+    public function getRequestController(Request $request): string
     {
         return $request->attributes->get('controller', $this->defaultController);
     }
@@ -280,7 +273,7 @@ class Router
      * @param Request $request
      * @return string
      */
-    public function getRequestAction(Request $request)
+    public function getRequestAction(Request $request): string
     {
         return $request->attributes->get('action', $this->defaultAction);
     }

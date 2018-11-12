@@ -10,9 +10,12 @@ namespace Starlit\App\Provider;
 
 use Starlit\App\BaseApp;
 use Starlit\App\Router;
+use Starlit\App\RouterInterface;
 use Starlit\App\View;
+use Starlit\App\ViewInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 /**
@@ -33,15 +36,16 @@ class StandardServiceProvider implements ServiceProviderInterface
             return new \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage();
         });
 
-        $app->alias('session', Session::class);
+        $app->alias('session', SessionInterface::class);
+        $app->set(SessionInterface::class, Session::class);
 
-        $app->alias('router', Router::class);
-        $app->set(Router::class, function (BaseApp $app) {
+        $app->alias('router', RouterInterface::class);
+        $app->set(RouterInterface::class, function (BaseApp $app) {
             return new Router($app, $app->getConfig()->get('router', []));
         });
 
-        $app->alias('view', View::class);
-        $app->set(View::class, function (BaseApp $app) {
+        $app->alias('view', ViewInterface::class);
+        $app->set(ViewInterface::class, function (BaseApp $app) {
             return new View($app->getConfig()->get('view', []));
         });
 

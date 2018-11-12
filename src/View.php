@@ -8,6 +8,11 @@
 
 namespace Starlit\App;
 
+use Starlit\App\ViewHelper\Capturer;
+use Starlit\App\ViewHelper\InlineScriptCapturer;
+use Starlit\App\ViewHelper\MustacheTmplCapturer;
+use Starlit\App\ViewHelper\Pagination;
+use Starlit\App\ViewHelper\Url;
 use Symfony\Component\HttpFoundation\Request;
 use Starlit\App\ViewHelper\AbstractViewHelper;
 
@@ -16,7 +21,7 @@ use Starlit\App\ViewHelper\AbstractViewHelper;
  *
  * @author Andreas Nilsson <http://github.com/jandreasn>
  */
-class View
+class View implements ViewInterface
 {
     /**
      * @var string
@@ -34,11 +39,11 @@ class View
      * @var array
      */
     protected $helperClasses = [
-        'capturer'             => '\Starlit\App\ViewHelper\Capturer',
-        'mustacheTmplCapturer' => '\Starlit\App\ViewHelper\MustacheTmplCapturer',
-        'pagination'           => '\Starlit\App\ViewHelper\Pagination',
-        'url'                  => '\Starlit\App\ViewHelper\Url',
-        'inlineScriptCapturer' => '\Starlit\App\ViewHelper\InlineScriptCapturer',
+        'capturer'             => Capturer::class,
+        'mustacheTmplCapturer' => MustacheTmplCapturer::class,
+        'pagination'           => Pagination::class,
+        'url'                  => Url::class,
+        'inlineScriptCapturer' => InlineScriptCapturer::class,
     ];
 
     /**
@@ -68,8 +73,6 @@ class View
 
     /**
      * Constructor.
-     *
-     * @param array $options
      */
     public function __construct(array $options = [])
     {
@@ -78,10 +81,8 @@ class View
 
     /**
      * Set options.
-     *
-     * @param array $options
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): void
     {
         if (isset($options['scriptRootPath'])) {
             $this->scriptRootPath = $options['scriptRootPath'];
@@ -98,7 +99,7 @@ class View
      * @param   string $name
      * @param   mixed  $value
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value): void
     {
         $this->variables[$name] = $value;
     }
@@ -109,7 +110,7 @@ class View
      * @param string $name
      * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         if (!isset($this->variables[$name])) {
             return null;
@@ -120,19 +121,13 @@ class View
 
     /**
      * Magic method to test if view variable is set.
-     *
-     * @param string $name
-     * @return bool
      */
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return isset($this->variables[$name]);
     }
 
-    /**
-     * @param string $script
-     */
-    public function setLayout($script)
+    public function setLayout(string $script): void
     {
         $this->layoutScript = $script;
     }
@@ -144,7 +139,7 @@ class View
      * @param bool   $renderLayout
      * @return string
      */
-    public function render($script, $renderLayout = false)
+    public function render(string $script, bool $renderLayout = false): string
     {
         // Check If script should be rendered with a layout
         if ($renderLayout && !empty($this->layoutScript)) {
@@ -158,11 +153,8 @@ class View
 
     /**
      * Internal method that does the actual script rendering.
-     *
-     * @param string $script
-     * @return string
      */
-    protected function renderScript($script)
+    protected function renderScript(string $script): string
     {
         $fullScriptPath = $this->scriptRootPath . '/' . $script . '.' . $this->fileExtension;
         // We don't unit test invalid script because it slows down the test process an entire second or more
@@ -177,35 +169,23 @@ class View
         return ob_get_clean();
     }
 
-    /**
-     * Returns set layout content.
-     *
-     * @return string
-     */
-    public function layoutContent()
+    public function layoutContent(): string
     {
         return $this->layoutContent;
     }
 
     /**
      * Escape a string for output in view script.
-     *
-     * @param string $string
-     * @param int    $flags
-     * @return string
      */
-    public function escape($string, $flags = ENT_QUOTES)
+    public function escape(string $string, int $flags = ENT_QUOTES): string
     {
         return htmlspecialchars($string, $flags, BaseApp::CHARSET);
     }
 
     /**
      * Returns view variable escaped for view script output.
-     *
-     * @param string $name
-     * @return string
      */
-    public function getEscaped($name)
+    public function getEscaped(string $name): string
     {
         if (!isset($this->variables[$name])) {
             return '';
@@ -214,20 +194,12 @@ class View
         return $this->escape($this->variables[$name]);
     }
 
-    /**
-     * @param string $helperName
-     * @param string $className
-     */
-    public function addHelperClass($helperName, $className)
+    public function addHelperClass(string $helperName, string $className): void
     {
         $this->helperClasses[$helperName] = $className;
     }
 
-    /**
-     * @param string $helperName
-     * @return AbstractViewHelper
-     */
-    public function getHelper($helperName)
+    public function getHelper(string $helperName): AbstractViewHelper
     {
         // If helper has not already been instantiated
         if (!isset($this->helpers[$helperName])) {
@@ -247,12 +219,8 @@ class View
      * Magic method to call view helpers.
      * If the helper has not defined __invoke(), the helper object will be returned.
      * Otherwise, the result of the __invoke() is returned.
-     *
-     * @param string $name
-     * @param array  $arguments
-     * @return mixed
      */
-    public function __call($name, array $arguments = [])
+    public function __call(string $name, array $arguments = [])
     {
         $helper = $this->getHelper($name);
         if (is_callable($helper)) {
@@ -262,26 +230,17 @@ class View
         return $helper;
     }
 
-    /**
-     * @param Request $request
-     */
-    public function setRequest(Request $request)
+    public function setRequest(Request $request): void
     {
         $this->request = $request;
     }
 
-    /**
-     * @return Request
-     */
-    public function getRequest()
+    public function getRequest(): Request
     {
         return $this->request;
     }
 
-    /**
-     * @param string $value
-     */
-    public function setLayoutContent($value)
+    public function setLayoutContent(string $value): void
     {
         $this->layoutContent = $value;
     }
