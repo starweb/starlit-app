@@ -53,11 +53,24 @@ class Container implements ContainerInterface
         return $this;
     }
 
+    public function unset(string $key): void
+    {
+        unset(
+            $this->dicValues[$key],
+            $this->dicObjects[$key]
+        );
+    }
+
     public function alias(string $alias, string $key): self
     {
         $this->aliases[$alias] = $key;
 
         return $this;
+    }
+
+    public function unalias(string $alias): void
+    {
+        unset($this->aliases[$alias]);
     }
 
     /**
