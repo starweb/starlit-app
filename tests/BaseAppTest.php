@@ -30,7 +30,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
     public function testInit()
     {
         $this->assertInstanceOf(Session::class, $this->app->get(Session::class));
-        $this->assertInstanceOf(Router::class, $this->app->get(Router::class));
+        $this->assertInstanceOf(Router::class, $this->app->get(RouterInterface::class));
         $this->assertInstanceOf(ViewInterface::class, $this->app->get(ViewInterface::class));
 
         $this->assertEquals($this->fakeConfig['testkey'], $this->app->getConfig()->get('testkey'));
@@ -38,7 +38,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($this->fakeConfig['phpSettings']['date']['timezone'], ini_get('date.timezone'));
 
         // test setup default routes
-        $router = $this->app->get(Router::class);
+        $router = $this->app->get(RouterInterface::class);
         $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/'));
         $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/{action}'));
         $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/{controller}/{action}'));
@@ -72,7 +72,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
             ->method('route')
             ->with($mockRequest)
             ->will($this->returnValue($mockController));
-        $this->app->set(Router::class, $mockRouter);
+        $this->app->set(RouterInterface::class, $mockRouter);
 
 
         $response = $this->app->handle($mockRequest);
@@ -89,7 +89,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
             ->method('route')
             ->with($mockRequest)
             ->will($this->throwException(new \Symfony\Component\Routing\Exception\ResourceNotFoundException()));
-        $this->app->set(Router::class, $mockRouter);
+        $this->app->set(RouterInterface::class, $mockRouter);
 
         $response = $this->app->handle($mockRequest);
 
@@ -119,7 +119,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
             ->method('route')
             ->with($mockRequest)
             ->will($this->returnValue($mockController));
-        $mockBaseApp->set(Router::class, $mockRouter);
+        $mockBaseApp->set(RouterInterface::class, $mockRouter);
 
         $response = $mockBaseApp->handle($mockRequest);
 

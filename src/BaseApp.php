@@ -195,7 +195,7 @@ class BaseApp extends Container
         }
 
         try {
-            $controller = $this->get(Router::class)->route($request);
+            $controller = $this->get(RouterInterface::class)->route($request);
 
             if (($postRouteResponse = $this->postRoute($request))) {
                 return $postRouteResponse;

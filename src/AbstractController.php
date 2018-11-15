@@ -112,7 +112,7 @@ abstract class AbstractController
     public function dispatch($action = null, array $actionArgs = [])
     {
         // If not special action is provided, try to get from request
-        $router = $this->app->get(Router::class);
+        $router = $this->app->get(RouterInterface::class);
         $action = Str::camelToSeparator(
             $action ?: $router->getRequestAction($this->request),
             '-'
@@ -189,8 +189,8 @@ abstract class AbstractController
         } elseif ($this->autoRenderView) {
             $viewScript = $this->autoRenderViewScript ?: $this->getAutoRenderViewScriptName(
                 $action,
-                $this->app->get(Router::class)->getRequestController($this->request),
-                $this->app->get(Router::class)->getRequestModule($this->request)
+                $this->app->get(RouterInterface::class)->getRequestController($this->request),
+                $this->app->get(RouterInterface::class)->getRequestModule($this->request)
             );
 
             return $this->app->get(Response::class)->setContent($this->view->render($viewScript, true))
@@ -240,7 +240,7 @@ abstract class AbstractController
             return $this->dispatch($action, $actionArgs);
         // Forward to another controller
         } else {
-            $router = $this->app->get(Router::class);
+            $router = $this->app->get(RouterInterface::class);
             $controller = $controller ?: $router->getRequestController($this->request);
             $module = $module ?: $router->getRequestModule($this->request);
 
