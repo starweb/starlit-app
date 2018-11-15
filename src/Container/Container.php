@@ -177,6 +177,10 @@ class Container implements ContainerInterface
      */
     public function destroyInstance($key): void
     {
+        if (isset($this->aliases[$key])) {
+            $key = $this->aliases[$key];
+        }
+
         unset($this->dicObjects[$key]);
     }
 
