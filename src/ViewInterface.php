@@ -45,7 +45,7 @@ interface ViewInterface
     /**
      * Escape a string for output in view script.
      */
-    public function escape(string $string, int $flags = ENT_QUOTES): string;
+    public function escape(?string $string, int $flags = ENT_QUOTES): string;
 
     /**
      * Returns view variable escaped for view script output.

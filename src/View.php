@@ -177,7 +177,7 @@ class View implements ViewInterface
     /**
      * Escape a string for output in view script.
      */
-    public function escape(string $string, int $flags = ENT_QUOTES): string
+    public function escape(?string $string, int $flags = ENT_QUOTES): string
     {
         return htmlspecialchars($string, $flags, BaseApp::CHARSET);
     }
