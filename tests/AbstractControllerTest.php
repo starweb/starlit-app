@@ -59,7 +59,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
                     switch ($className) {
                         case Response::class:
                             return $this->mockResponse;
-                        case Router::class:
+                        case RouterInterface::class:
                             return $this->mockRouter;
                     }
                 }
