@@ -51,8 +51,9 @@ abstract class AbstractController
      *
      * @param BaseApp $app
      * @param Request $request
+     * @param mixed $dependencies additional dependencies to be resolved by the container
      */
-    final public function __construct(BaseApp $app, Request $request)
+    public function __construct(BaseApp $app, Request $request, ...$toBeResolved)
     {
         $this->app = $app;
         $this->request = $request;
