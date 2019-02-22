@@ -14,8 +14,8 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     {
         $this->urlHelper = new Url();
 
-        $request = $this->createMock('\Symfony\Component\HttpFoundation\Request');
-        $request->query = $this->createMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+        $request->query = $this->createMock(\Symfony\Component\HttpFoundation\ParameterBag::class);
         $request->query->expects($this->any())
             ->method('all')
             ->will($this->returnValue([]));
@@ -24,7 +24,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
             ->method('getRequestUri')
             ->will($this->returnValue('/hej/hopp'));
 
-        $view = $this->createPartialMock('\Starlit\App\View', ['getRequest']);
+        $view = $this->createPartialMock(\Starlit\App\View::class, ['getRequest']);
         $view->expects($this->any())
             ->method('getRequest')
             ->will($this->returnValue($request));
@@ -49,7 +49,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
 
     public function testInvokeException()
     {
-        $this->expectException('\LogicException');
+        $this->expectException(\LogicException::class);
 
         $invokableObject = new Url();
         $invokableObject('test1');
