@@ -195,8 +195,7 @@ class BaseApp extends Container
         }
 
         try {
-            $controller = $this->get(RouterInterface::class)->route($request);
-
+            $controller = $this->resolveController($request);
             if (($postRouteResponse = $this->postRoute($request))) {
                 return $postRouteResponse;
             }
@@ -263,5 +262,21 @@ class BaseApp extends Container
     public function getEnvironment()
     {
         return $this->environment;
+    }
+
+    private function resolveController(Request $request): ControllerInterface
+    {
+        $controller = $this->get(RouterInterface::class)->route($request);
+        if (!$controller instanceof ControllerInterface) {
+            throw new \LogicException('controller needs to implement ControllerInterface');
+        }
+        $controller->setApp($this);
+        $controller->setRequest($request);
+        if ($controller instanceof ViewAwareControllerInterface) {
+            $controller->setView($this->getNew(ViewInterface::class));
+        }
+        $controller->init();
+
+        return $controller;
     }
 }

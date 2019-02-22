@@ -19,7 +19,7 @@ use Starlit\Utils\Url;
  *
  * @author Andreas Nilsson <http://github.com/jandreasn>
  */
-abstract class AbstractController
+abstract class AbstractController implements ViewAwareControllerInterface
 {
     /**
      * @var BaseApp
@@ -46,28 +46,25 @@ abstract class AbstractController
      */
     protected $autoRenderViewScript;
 
-    /**
-     * Constructor.
-     *
-     * @param BaseApp $app
-     * @param Request $request
-     * @param mixed $dependencies additional dependencies to be resolved by the container
-     */
-    public function __construct(BaseApp $app, Request $request, ...$toBeResolved)
+    public function setApp(BaseApp $app)
     {
         $this->app = $app;
+    }
+
+    public function setRequest(Request $request)
+    {
         $this->request = $request;
+    }
 
-        $this->view = $this->app->getNew(ViewInterface::class);
-        $this->view->setRequest($this->request);
-
-        $this->init();
+    public function setView(ViewInterface $view)
+    {
+        $this->view = $view;
     }
 
     /**
      * Initialization method meant to be overridden in descendant classes (optional).
      */
-    protected function init()
+    public function init()
     {
     }
 
