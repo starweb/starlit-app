@@ -237,7 +237,7 @@ class Container implements ContainerInterface
      * @return mixed
      * @throws \ReflectionException
      */
-    private function resolveInstance(string $className)
+    public function resolveInstance(string $className)
     {
         $class = new \ReflectionClass($className);
 
@@ -261,7 +261,7 @@ class Container implements ContainerInterface
      * @param \ReflectionParameter[]
      * @return mixed
      */
-    private function resolveParameters(array $parameters): array
+    public function resolveParameters(array $parameters): array
     {
         $values = [];
 
