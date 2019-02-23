@@ -178,7 +178,7 @@ class BaseApp extends Container
     }
 
     /**
-     * Handles an http request and returns a response.
+     * Handles a http request and returns a response.
      *
      * @param Request $request
      * @return Response
