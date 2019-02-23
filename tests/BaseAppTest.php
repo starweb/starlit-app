@@ -244,7 +244,7 @@ class BaseAppTest extends \PHPUnit_Framework_TestCase
 
     public function testHasNoRequest()
     {
-        $this->assertFalse($this->app->has(Request::class));
+        $this->assertTrue($this->app->has(Request::class));
     }
 }
 
