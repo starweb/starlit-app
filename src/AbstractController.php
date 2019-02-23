@@ -243,7 +243,16 @@ abstract class AbstractController implements ViewAwareControllerInterface
             $module = $module ?: $router->getRequestModule($this->request);
 
             $controllerClass = $router->getControllerClass($controller, $module);
-            $actualController = new $controllerClass($this->app, $this->request);
+            $actualController = $this->app->resolveInstance($controllerClass);
+            if (!$actualController instanceof ControllerInterface) {
+                throw new \LogicException('controller needs to implement ControllerInterface');
+            }
+            $actualController->setApp($this->app);
+            $actualController->setRequest($this->app->get(Request::class));
+            if ($actualController instanceof ViewAwareControllerInterface) {
+                $actualController->setView($this->app->getNew(ViewInterface::class));
+            }
+            $actualController->init();
 
             // Set new request properties
             $this->request->attributes->add(compact('module', 'controller', 'action'));
