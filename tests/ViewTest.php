@@ -2,7 +2,9 @@
 
 namespace Starlit\App;
 
-class ViewTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ViewTest extends TestCase
 {
     /**
      * @var View
