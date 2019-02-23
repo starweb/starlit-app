@@ -165,6 +165,8 @@ abstract class AbstractController
                 $collectedArgs[] = $this->request->attributes->get($param->name);
             } elseif ($param->isDefaultValueAvailable()) {
                 $collectedArgs[] = $param->getDefaultValue();
+            } elseif ($param->getClass()) {
+                $collectedArgs[] = $this->app->resolveInstance($param->getClass()->getName());
             } else {
                 throw new \LogicException(
                     "Action method \"{$actionMethod}\" requires that you provide a value for the \"\${$param->name}\""
