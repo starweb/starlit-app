@@ -33,7 +33,7 @@ class StandardServiceProvider implements ServiceProviderInterface
             return $app;
         });
 
-        $app->set(Request::class, function (BaseApp $app) {
+        $app->set(Request::class, function () {
             return Request::createFromGlobals();
         });
 
