@@ -1,12 +1,13 @@
 <?php
 namespace Starlit\App;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ServerBag;
 
-class AbstractControllerTest extends \PHPUnit_Framework_TestCase
+class AbstractControllerTest extends TestCase
 {
     /**
      * @var TestController

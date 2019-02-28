@@ -1,9 +1,11 @@
 <?php
 namespace Starlit\App\ViewHelper;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  */
-class MustacheTmplCapturerTest extends \PHPUnit_Framework_TestCase
+class MustacheTmplCapturerTest extends TestCase
 {
     /**
      * @var Capturer

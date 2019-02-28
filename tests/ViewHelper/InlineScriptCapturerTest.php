@@ -1,9 +1,11 @@
 <?php
 namespace Starlit\App\ViewHelper;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  */
-class InlineScriptCapturerTest extends \PHPUnit_Framework_TestCase
+class InlineScriptCapturerTest extends TestCase
 {
     public function testEnd()
     {

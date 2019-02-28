@@ -1,11 +1,12 @@
 <?php
 namespace Starlit\App;
 
+use PHPUnit\Framework\TestCase;
 use Starlit\App\Provider\BootableServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class BaseAppTest extends \PHPUnit_Framework_TestCase
+class BaseAppTest extends TestCase
 {
     /**
      * @var BaseApp
