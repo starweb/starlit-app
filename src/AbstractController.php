@@ -154,24 +154,13 @@ abstract class AbstractController
             throw new Routing\Exception\ResourceNotFoundException("\"{$actionMethod}\" action method does not exist.");
         }
 
+        $params = $reflectionMethod->getParameters();
+        $predefinedValues = \array_merge($this->request->attributes->all() ?? [], $actionArgs);
 
-        // Get action arguments from request or method default values.
-        // Throws an exception if arguments are not provided.
-        $collectedArgs = [];
-        foreach ($reflectionMethod->getParameters() as $param) {
-            if (array_key_exists($param->name, $actionArgs)) {
-                $collectedArgs[] = $actionArgs[$param->name];
-            } elseif ($this->request->attributes->has($param->name)) {
-                $collectedArgs[] = $this->request->attributes->get($param->name);
-            } elseif ($param->isDefaultValueAvailable()) {
-                $collectedArgs[] = $param->getDefaultValue();
-            } elseif ($param->getClass()) {
-                $collectedArgs[] = $this->app->resolveInstance($param->getClass()->getName());
-            } else {
-                throw new \LogicException(
-                    "Action method \"{$actionMethod}\" requires that you provide a value for the \"\${$param->name}\""
-                );
-            }
+        try {
+            $collectedArgs = $this->app->resolveParameters($params, $predefinedValues);
+        } catch (\ReflectionException $e) {
+            throw new \LogicException('Missing values for one or more action parameters');
         }
 
         return $collectedArgs;

@@ -258,10 +258,10 @@ class Container implements ContainerInterface
     /**
      * Recursively resolve function parameters using type hints
      *
-     * @param \ReflectionParameter[]
-     * @return mixed
+     * @param \ReflectionParameter[] $parameters
+     * @throws \ReflectionException
      */
-    private function resolveParameters(array $parameters): array
+    public function resolveParameters(array $parameters, array $predefinedValues = []): array
     {
         $values = [];
 
@@ -269,15 +269,19 @@ class Container implements ContainerInterface
          * @var \ReflectionParameter $parameter
          */
         foreach ($parameters as $parameter) {
-            if (($parameterClass = $parameter->getClass())) {
-                try {
-                    $values[] = $this->get($parameterClass->getName());
-                }
-                catch (NotFoundException $e) { // We're probably dealing with an unmapped interface here
+            if (\array_key_exists($parameter->getName(), $predefinedValues)) {
+                $values[] = $predefinedValues[$parameter->getName()];
+            } else {
+                if (($parameterClass = $parameter->getClass())) {
+                    try {
+                        $values[] = $this->get($parameterClass->getName());
+                    }
+                    catch (NotFoundException $e) { // We're probably dealing with an unmapped interface here
+                        $values[] = $parameter->getDefaultValue();
+                    }
+                } else {
                     $values[] = $parameter->getDefaultValue();
                 }
-            } else {
-                $values[] = $parameter->getDefaultValue();
             }
         }
 

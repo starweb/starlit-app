@@ -142,21 +142,12 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('someOtherAction'));
 
         // mock request-attributes has
-        $this->mockRequest->attributes->expects($this->exactly(2))
-            ->method('has')
-            ->will($this->returnCallback(function ($paramName) {
-                return ($paramName == 'someParam');
-            }));
         $this->mockRequest->attributes->expects($this->once())
-            ->method('get')
-            ->with('someParam')
-            ->will($this->returnValue('ooh'));
-
-
+            ->method('all')
+            ->will($this->returnValue(['someParam' => 'ooh']));
 
         $response = $this->testController->dispatch('some-other', ['otherParam' => 'aaa']);
         $this->assertEquals('ooh aaa wow', $response->getContent());
-
     }
 
     public function testDispatchWithoutReqParam()
@@ -170,8 +161,8 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
 
         // mock request-attributes has
         $this->mockRequest->attributes->expects($this->once())
-            ->method('has')
-            ->will($this->returnValue(false));
+            ->method('all')
+            ->will($this->returnValue([]));
 
         $this->expectException(\LogicException::class);
         $this->testController->dispatch('some-other');
