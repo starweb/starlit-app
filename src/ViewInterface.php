@@ -11,19 +11,10 @@ namespace Starlit\App;
 use Symfony\Component\HttpFoundation\Request;
 use Starlit\App\ViewHelper\AbstractViewHelper;
 
-/**
- * Abstract implementation of a View
- */
 interface ViewInterface
 {
-    /**
-     * Constructor.
-     */
     public function __construct(array $options = []);
 
-    /**
-     * Set options.
-     */
     public function setOptions(array $options): void;
 
     public function setLayout(string $script);
@@ -37,19 +28,10 @@ interface ViewInterface
      */
     public function render(string $script, bool $renderLayout = false): string ;
 
-    /**
-     * Returns set layout content.
-     */
     public function layoutContent(): string;
 
-    /**
-     * Escape a string for output in view script.
-     */
     public function escape(?string $string, int $flags = ENT_QUOTES): string;
 
-    /**
-     * Returns view variable escaped for view script output.
-     */
     public function getEscaped(string $name): string;
 
     public function addHelperClass(string $helperName, string $className): void;
