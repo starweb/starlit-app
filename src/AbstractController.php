@@ -19,7 +19,7 @@ use Starlit\Utils\Url;
  *
  * @author Andreas Nilsson <http://github.com/jandreasn>
  */
-abstract class AbstractController
+abstract class AbstractController implements ViewAwareControllerInterface
 {
     /**
      * @var BaseApp
@@ -46,27 +46,25 @@ abstract class AbstractController
      */
     protected $autoRenderViewScript;
 
-    /**
-     * Constructor.
-     *
-     * @param BaseApp $app
-     * @param Request $request
-     */
-    final public function __construct(BaseApp $app, Request $request)
+    public function setApp(BaseApp $app)
     {
         $this->app = $app;
+    }
+
+    public function setRequest(Request $request)
+    {
         $this->request = $request;
+    }
 
-        $this->view = $this->app->getNew(ViewInterface::class);
-        $this->view->setRequest($this->request);
-
-        $this->init();
+    public function setView(ViewInterface $view)
+    {
+        $this->view = $view;
     }
 
     /**
      * Initialization method meant to be overridden in descendant classes (optional).
      */
-    protected function init()
+    public function init()
     {
     }
 
@@ -247,7 +245,16 @@ abstract class AbstractController
             $module = $module ?: $router->getRequestModule($this->request);
 
             $controllerClass = $router->getControllerClass($controller, $module);
-            $actualController = new $controllerClass($this->app, $this->request);
+            $actualController = $this->app->resolveInstance($controllerClass);
+            if (!$actualController instanceof ControllerInterface) {
+                throw new \LogicException('controller needs to implement ControllerInterface');
+            }
+            $actualController->setApp($this->app);
+            $actualController->setRequest($this->app->get(Request::class));
+            if ($actualController instanceof ViewAwareControllerInterface) {
+                $actualController->setView($this->app->getNew(ViewInterface::class));
+            }
+            $actualController->init();
 
             // Set new request properties
             $this->request->attributes->add(compact('module', 'controller', 'action'));

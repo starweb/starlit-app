@@ -216,7 +216,15 @@ class Router implements RouterInterface
             throw new ResourceNotFoundException("Action method \"{$controllerClass}::{$actionMethod}\" does not exist");
         }
 
-        $actualController = new $controllerClass($this->app, $request);
+        try {
+            $actualController = $this->app->resolveInstance($controllerClass);
+        } catch (\ReflectionException $exception) {
+            throw new \RuntimeException(
+                "controller [$controllerClass] could not be resolved by the container",
+                0,
+                $exception
+            );
+        }
 
         return $actualController;
     }

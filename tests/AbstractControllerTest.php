@@ -59,16 +59,22 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
                     switch ($className) {
                         case Response::class:
                             return $this->mockResponse;
+                        case Request::class:
+                            return $this->mockRequest;
                         case RouterInterface::class:
                             return $this->mockRouter;
                     }
                 }
             ));
 
-        $this->testController = new TestController($this->mockApp, $this->mockRequest);
+        $testController = new TestController();
+        $testController->setApp($this->mockApp);
+        $testController->setRequest($this->mockRequest);
+        $testController->setView($this->mockView);
+        $this->testController = $testController;
     }
 
-    public function testConstruct()
+    public function testViewProperty()
     {
         // check view
         $rObject = new \ReflectionObject($this->testController);
@@ -250,6 +256,9 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testForward()
     {
+        $this->mockApp->expects($this->once())
+            ->method('resolveInstance')
+            ->willReturn($this->testController);
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
             ->method('getRequestModule')
@@ -274,6 +283,9 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testForwardWithModule()
     {
+        $this->mockApp->expects($this->once())
+                      ->method('resolveInstance')
+                      ->willReturn($this->testController);
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
             ->method('getControllerClass')

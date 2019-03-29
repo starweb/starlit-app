@@ -13,6 +13,7 @@ use Starlit\App\Router;
 use Starlit\App\RouterInterface;
 use Starlit\App\View;
 use Starlit\App\ViewInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -28,6 +29,14 @@ class StandardServiceProvider implements ServiceProviderInterface
      */
     public function register(BaseApp $app)
     {
+        $app->set(BaseApp::class, function (BaseApp $app) {
+            return $app;
+        });
+
+        $app->set(Request::class, function () {
+            return Request::createFromGlobals();
+        });
+
         $app->alias('sessionStorage', SessionStorageInterface::class);
         $app->set(SessionStorageInterface::class, function (BaseApp $app) {
             if ($app->isCli()) {

@@ -98,6 +98,10 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function testRoute()
     {
+        $this->mockApp->expects($this->once())
+                      ->method('resolveInstance')
+                      ->willReturn(new RouterTestController());
+
         // Mock controller get
         $partiallyMockedRouter = $this->getMockBuilder(\Starlit\App\Router::class)
             ->setMethods(['getControllerClass'])

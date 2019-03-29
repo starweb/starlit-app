@@ -261,7 +261,7 @@ class Container implements ContainerInterface
      * @param \ReflectionParameter[]
      * @return mixed
      */
-    private function resolveParameters(array $parameters): array
+    public function resolveParameters(array $parameters): array
     {
         $values = [];
 
