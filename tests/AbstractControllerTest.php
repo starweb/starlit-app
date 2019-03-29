@@ -50,11 +50,9 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
         $this->mockRouter = null;
 
         $this->mockApp->method('getNew')
-            ->will($this->returnValue(
-                $this->mockView)
-            );
+            ->willReturn($this->mockView);
         $this->mockApp->method('get')
-            ->will($this->returnCallback(
+            ->willReturnCallback(
                 function ($className) {
                     switch ($className) {
                         case Response::class:
@@ -63,7 +61,21 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
                             return $this->mockRouter;
                     }
                 }
-            ));
+            );
+        $this->mockApp->method('resolveParameters')
+            ->willReturnCallback(
+                function ($params, $predefinedValues = []) {
+                    if ($predefinedValues) {
+                        if (!isset($predefinedValues['someParam'], $predefinedValues['otherParam'])) {
+                            throw new \ReflectionException();
+                        }
+
+                        return [$predefinedValues['someParam'], $predefinedValues['otherParam'], 'wow'];
+                    }
+
+                    return [];
+                }
+            );
 
         $this->testController = new TestController($this->mockApp, $this->mockRequest);
     }
@@ -162,7 +174,7 @@ class AbstractControllerTest extends \PHPUnit_Framework_TestCase
         // mock request-attributes has
         $this->mockRequest->attributes->expects($this->once())
             ->method('all')
-            ->will($this->returnValue([]));
+            ->will($this->returnValue(['someParam' => 'ooh']));
 
         $this->expectException(\LogicException::class);
         $this->testController->dispatch('some-other');
