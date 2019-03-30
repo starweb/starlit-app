@@ -237,7 +237,7 @@ class Container implements ContainerInterface
      * @return mixed
      * @throws \ReflectionException
      */
-    public function resolveInstance(string $className)
+    private function resolveInstance(string $className)
     {
         $class = new \ReflectionClass($className);
 
