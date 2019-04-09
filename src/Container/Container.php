@@ -273,7 +273,11 @@ class Container implements ContainerInterface
                         $values[] = $this->get($parameterClass->getName());
                     }
                     catch (NotFoundException $e) { // We're probably dealing with an unmapped interface here
-                        $values[] = $parameter->getDefaultValue();
+                        if ($parameter->isOptional()) {
+                            $values[] = $parameter->getDefaultValue();
+                        } else {
+                            throw $e;
+                        }
                     }
                 } else {
                     $values[] = $parameter->getDefaultValue();

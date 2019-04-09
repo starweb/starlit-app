@@ -446,6 +446,22 @@ class ContainerTest extends TestCase
     public function testResolveParametersWithNotFoundClass(): void
     {
         $class = (new class() extends \stdClass {
+            public function foo(\Throwable $foo): void
+            {
+            }
+        });
+        $reflected = new \ReflectionClass($class);
+        $function = $reflected->getMethod('foo');
+        $parameters = $function->getParameters();
+
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage('Key "Throwable" could not be resolved.');
+        $this->container->resolveParameters($parameters);
+    }
+
+    public function testResolveParametersWithNotFoundClassAndDefaultValue(): void
+    {
+        $class = (new class() extends \stdClass {
             public function foo(\Throwable $foo = null): void
             {
             }
