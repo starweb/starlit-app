@@ -68,7 +68,7 @@ class BaseAppTest extends TestCase
         $this->app->boot();
     }
 
-    public function testBootCalledTwice()
+    public function testBootCalledTwice(): void
     {
         $mockProvider = $this->createMock(BootableServiceProviderInterface::class);
         $mockProvider->expects($this->once())
