@@ -119,7 +119,7 @@ class Container implements ContainerInterface
                 $instance = $this->resolveInstance($key);
             }
         } catch (\ReflectionException $e) {
-            throw new NotFoundException(sprintf('Key "%s" could not be resolved. ', $key));
+            throw new NotFoundException(sprintf('Key "%s" could not be resolved.', $key));
         }
 
         $this->dicObjects[$key] = $instance;
