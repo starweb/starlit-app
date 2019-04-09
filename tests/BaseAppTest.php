@@ -125,8 +125,7 @@ class BaseAppTest extends TestCase
     public function testHandlePreHandleResponse(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-        $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp
-        {
+        $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp {
             protected function preHandle(Request $request): ?Response
             {
                 return new Response('Pre handle response');
