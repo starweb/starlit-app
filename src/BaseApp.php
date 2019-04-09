@@ -13,7 +13,6 @@ use Starlit\App\Provider\BootableServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Starlit\App\Provider\ServiceProviderInterface;
 use Starlit\App\Provider\StandardServiceProvider;
 use Starlit\App\Provider\ErrorServiceProvider;
@@ -51,6 +50,11 @@ class BaseApp extends Container
     protected $booted = false;
 
     /**
+     * @var bool
+     */
+    protected $isCli = false;
+
+    /**
      * Constructor.
      *
      * @param array|Config $config
@@ -79,7 +83,7 @@ class BaseApp extends Container
      */
     protected function init()
     {
-        $this->set('cli', (PHP_SAPI === 'cli'));
+        $this->isCli = (PHP_SAPI === 'cli');
 
         if ($this->config->has('phpSettings')) {
             $this->setPhpSettings($this->config->get('phpSettings'));
@@ -157,6 +161,7 @@ class BaseApp extends Container
      */
     protected function preHandle(Request $request)
     {
+        return null;
     }
 
     /**
@@ -169,6 +174,7 @@ class BaseApp extends Container
      */
     protected function postRoute(Request $request)
     {
+        return null;
     }
 
     /**
@@ -179,7 +185,8 @@ class BaseApp extends Container
      */
     public function handle(Request $request)
     {
-        $this->set('request', $request);
+        $this->alias('request', Request::class);
+        $this->set(Request::class, $request);
 
         $this->boot();
 
@@ -188,7 +195,7 @@ class BaseApp extends Container
         }
 
         try {
-            $controller = $this->getRouter()->route($request);
+            $controller = $this->get(RouterInterface::class)->route($request);
 
             if (($postRouteResponse = $this->postRoute($request))) {
                 return $postRouteResponse;
@@ -237,25 +244,9 @@ class BaseApp extends Container
     /**
      * @return bool
      */
-    public function isCli()
+    public function isCli(): bool
     {
-        return $this->get('cli');
-    }
-
-    /**
-     * @return Session
-     */
-    public function getSession()
-    {
-        return $this->get('session'); // Makes this method faster by bypassing __call() (which is quite slow).
-    }
-
-    /**
-     * @return Router
-     */
-    public function getRouter()
-    {
-        return $this->get('router'); // Makes this method faster by bypassing __call() (which is quite slow).
+        return $this->isCli;
     }
 
     /**
@@ -263,7 +254,7 @@ class BaseApp extends Container
      */
     public function getRequest()
     {
-        return $this->has('request') ? $this->get('request') : null;
+        return $this->has(Request::class) ? $this->get(Request::class) : null;
     }
 
     /**

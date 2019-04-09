@@ -20,7 +20,8 @@ class ErrorServiceProvider implements ServiceProviderInterface
      */
     public function register(BaseApp $app)
     {
-        $app->set('errorLogger', function (BaseApp $app) {
+        $app->alias('errorLogger', \Monolog\Logger::class);
+        $app->set(\Monolog\Logger::class, function (BaseApp $app) {
             $logger = new \Monolog\Logger('errorLogger');
 
             $handler = new \Monolog\Handler\ErrorLogHandler();
@@ -45,7 +46,8 @@ class ErrorServiceProvider implements ServiceProviderInterface
             return $prettyPageHandler;
         });
 
-        $app->set('whoopsUserErrorPageHandler', function (BaseApp $app) {
+        $app->alias('whoopsUserErrorPageHandler', \Starlit\App\ErrorHandling\UserErrorPageHandler::class);
+        $app->set(\Starlit\App\ErrorHandling\UserErrorPageHandler::class, function (BaseApp $app) {
             return new \Starlit\App\ErrorHandling\UserErrorPageHandler(
                 $app->getConfig()->getRequired('errorPagePath')
             );
@@ -53,7 +55,7 @@ class ErrorServiceProvider implements ServiceProviderInterface
 
         $app->set('whoopsErrorHandler', function (BaseApp $app) {
             $plainTextHandler = new \Whoops\Handler\PlainTextHandler();
-            $plainTextHandler->setLogger($app->get('errorLogger'));
+            $plainTextHandler->setLogger($app->get(\Monolog\Logger::class));
             if (!$app->isCli()) {
                 $plainTextHandler->loggerOnly(true);
             }

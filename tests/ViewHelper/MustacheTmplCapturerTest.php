@@ -26,9 +26,9 @@ class MustacheTmplCapturerTest extends TestCase
         echo 'teeest';
         $helper->end();
         
-        $this->assertInstanceOf('\Starlit\App\ViewHelper\MustacheTmplCapturer', $helper);
+        $this->assertInstanceOf(\Starlit\App\ViewHelper\MustacheTmplCapturer::class, $helper);
 
-        $this->assertInstanceOf('\Starlit\App\ViewHelper\Capturer', $helper);
+        $this->assertInstanceOf(\Starlit\App\ViewHelper\Capturer::class, $helper);
         $this->assertContains('<script', $helper->getScript());
         $this->assertContains('teeest', $helper->getScript());
         $this->assertContains('</script>', $helper->getScript());

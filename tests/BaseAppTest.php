@@ -5,6 +5,8 @@ use PHPUnit\Framework\TestCase;
 use Starlit\App\Provider\BootableServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\Route;
 
 class BaseAppTest extends TestCase
 {
@@ -28,38 +30,40 @@ class BaseAppTest extends TestCase
      */
     public function testInit()
     {
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Session\Session', $this->app->getSession());
-        $this->assertInstanceOf('\Starlit\App\Router', $this->app->getRouter());
-        $this->assertInstanceOf('\Starlit\App\View', $this->app->getView());
+        $this->assertInstanceOf(Session::class, $this->app->get(Session::class));
+        $this->assertInstanceOf(Router::class, $this->app->get(RouterInterface::class));
+        $this->assertInstanceOf(ViewInterface::class, $this->app->get(ViewInterface::class));
 
         $this->assertEquals($this->fakeConfig['testkey'], $this->app->getConfig()->get('testkey'));
         $this->assertEquals($this->fakeConfig['phpSettings']['max_execution_time'], ini_get('max_execution_time'));
         $this->assertEquals($this->fakeConfig['phpSettings']['date']['timezone'], ini_get('date.timezone'));
 
         // test setup default routes
-        $this->assertInstanceOf('Symfony\Component\Routing\Route', $this->app->getRouter()->getRoutes()->get('/'));
-        $this->assertInstanceOf('Symfony\Component\Routing\Route', $this->app->getRouter()->getRoutes()->get('/{action}'));
-        $this->assertInstanceOf('Symfony\Component\Routing\Route', $this->app->getRouter()->getRoutes()->get('/{controller}/{action}'));
+        $router = $this->app->get(RouterInterface::class);
+        $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/'));
+        $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/{action}'));
+        $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/{controller}/{action}'));
     }
 
     public function testBoot()
     {
-        // Guard
-        $this->assertFalse($this->app->has('testRegister'));
-        $this->assertFalse($this->app->has('testBoot'));
+        $mockProvider = $this->createMock(BootableServiceProviderInterface::class);
+        $mockProvider->expects($this->once())
+            ->method('register')
+            ->with($this->app);
+        $mockProvider->expects($this->once())
+            ->method('boot')
+            ->with($this->app);
 
-        $this->app->register(new TestBootableServiceProvider());
+        $this->app->register($mockProvider);
         $this->app->boot();
-
-        $this->assertTrue($this->app->get('testRegister'));
-        $this->assertTrue($this->app->get('testBoot'));
     }
 
     public function testHandle()
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRouter = $this->createMock('\Starlit\App\Router');
-        $mockController = $this->createMock('\Starlit\App\AbstractController');
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+        $mockRouter = $this->createMock(Router::class);
+        $mockController = $this->createMock(\Starlit\App\AbstractController::class);
 
         $mockController->expects($this->once())
             ->method('dispatch')
@@ -69,34 +73,34 @@ class BaseAppTest extends TestCase
             ->method('route')
             ->with($mockRequest)
             ->will($this->returnValue($mockController));
-        $this->app->set('router', $mockRouter);
+        $this->app->set(RouterInterface::class, $mockRouter);
 
 
         $response = $this->app->handle($mockRequest);
 
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Response', $response);
+        $this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
         $this->assertEquals('respnz', $response->getContent());
     }
 
     public function testHandleNotFound()
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRouter = $this->createMock('\Starlit\App\Router');
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+        $mockRouter = $this->createMock(Router::class);
         $mockRouter->expects($this->once())
             ->method('route')
             ->with($mockRequest)
             ->will($this->throwException(new \Symfony\Component\Routing\Exception\ResourceNotFoundException()));
-        $this->app->set('router', $mockRouter);
+        $this->app->set(RouterInterface::class, $mockRouter);
 
         $response = $this->app->handle($mockRequest);
 
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Response', $response);
+        $this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
         $this->assertEquals(404, $response->getStatusCode());
     }
 
     public function testHandlePreHandleResponse()
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
 
         $mockBaseApp = new TestBaseAppWithPreHandleResponse($this->fakeConfig, $this->fakeEnv);
         $response = $mockBaseApp->handle($mockRequest);
@@ -106,17 +110,17 @@ class BaseAppTest extends TestCase
 
     public function testHandlePostRouteResponse()
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRouter = $this->createMock('\Starlit\App\Router');
-        $mockController = $this->createMock('\Starlit\App\AbstractController');
-        ;
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+        $mockRouter = $this->createMock(Router::class);
+        $mockController = $this->createMock(\Starlit\App\AbstractController::class);
+
         $mockBaseApp = new TestBaseAppWithPostRouteResponse($this->fakeConfig, $this->fakeEnv);
 
         $mockRouter->expects($this->once())
             ->method('route')
             ->with($mockRequest)
             ->will($this->returnValue($mockController));
-        $mockBaseApp->set('router', $mockRouter);
+        $mockBaseApp->set(RouterInterface::class, $mockRouter);
 
         $response = $mockBaseApp->handle($mockRequest);
 
@@ -125,25 +129,32 @@ class BaseAppTest extends TestCase
 
     public function testGetValue()
     {
-        $this->app->setSomeKey('someValue');
+        $this->app->set('testKey', new \stdClass());
 
-        $this->assertEquals('someValue', $this->app->getSomeKey());
+        $this->assertInstanceOf(\stdClass::class, $this->app->get('testKey'));
+    }
+
+    public function testGetValueCall()
+    {
+        $this->app->setSomeKey(new \stdClass());
+
+        $this->assertInstanceOf(\stdClass::class, $this->app->getSomeKey());
     }
 
     public function testGetFail()
     {
-        $this->expectException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $this->app->get('invalidKey');
     }
 
     public function testGetNew()
     {
-        $this->assertInstanceOf('\Starlit\App\View', $this->app->getNewView());
+        $this->assertInstanceOf(ViewInterface::class, $this->app->getNew(ViewInterface::class));
     }
 
     public function testGetNewUndefined()
     {
-        $this->expectException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $this->app->getNew('bla');
     }
 
@@ -151,30 +162,30 @@ class BaseAppTest extends TestCase
     {
         $this->app->set('someKey', 'someValue');
 
-        $this->expectException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $this->app->getNew('someKey');
     }
 
     public function testHasInstanceIsTrue()
     {
-        $this->app->getView();
-        $this->assertTrue($this->app->hasInstance('view'));
+        $this->app->get(ViewInterface::class);
+        $this->assertTrue($this->app->hasInstance(ViewInterface::class));
     }
 
     public function testHasInstanceIsFalse()
     {
-        $this->assertFalse($this->app->hasInstance('nonExistantObject'));
+        $this->assertFalse($this->app->hasInstance('nonExistentObject'));
     }
 
     public function test__callFail()
     {
-        $this->expectException('\BadMethodCallException');
+        $this->expectException(\BadMethodCallException::class);
         $this->app->setBla();
     }
 
     public function test__callFail2()
     {
-        $this->expectException('\BadMethodCallException');
+        $this->expectException(\BadMethodCallException::class);
         $this->app->fail();
     }
 
@@ -227,14 +238,14 @@ class BaseAppTest extends TestCase
     public function testGetRequestReturnsRequest()
     {
         $mockRequest = $this->createMock(Request::class);
-        $this->app->set('request', $mockRequest);
+        $this->app->set(Request::class, $mockRequest);
 
-        $this->assertSame($mockRequest, $this->app->getRequest());
+        $this->assertSame($mockRequest, $this->app->get(Request::class));
     }
 
-    public function testRequestReturnsNull()
+    public function testHasNoRequest()
     {
-        $this->assertNull($this->app->getRequest());
+        $this->assertFalse($this->app->has(Request::class));
     }
 }
 
@@ -250,18 +261,5 @@ class TestBaseAppWithPostRouteResponse extends BaseApp
     protected function postRoute(Request $request)
     {
         return new Response('Post route response');
-    }
-}
-
-class TestBootableServiceProvider implements BootableServiceProviderInterface
-{
-    public function register(BaseApp $app)
-    {
-        $app->set('testRegister', true);
-    }
-
-    public function boot(BaseApp $app)
-    {
-        $app->set('testBoot', true);
     }
 }
