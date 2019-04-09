@@ -59,6 +59,21 @@ class BaseAppTest extends TestCase
         $this->app->boot();
     }
 
+    public function testBootCalledTwice()
+    {
+        $mockProvider = $this->createMock(BootableServiceProviderInterface::class);
+        $mockProvider->expects($this->once())
+            ->method('register')
+            ->with($this->app);
+        $mockProvider->expects($this->once())
+            ->method('boot')
+            ->with($this->app);
+
+        $this->app->register($mockProvider);
+        $this->app->boot();
+        $this->app->boot();
+    }
+
     public function testHandle(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
@@ -248,7 +263,7 @@ class BaseAppTest extends TestCase
         $mockRequest = $this->createMock(Request::class);
         $this->app->set(Request::class, $mockRequest);
 
-        $this->assertSame($mockRequest, $this->app->get(Request::class));
+        $this->assertSame($mockRequest, $this->app->getRequest());
     }
 
     public function testHasNoRequest(): void
