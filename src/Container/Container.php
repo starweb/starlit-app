@@ -195,7 +195,7 @@ class Container implements ContainerInterface
 
         // To make sure objects (like database connections) are destructed properly. PHP might not destruct objects
         // until the end of execution otherwise.
-        gc_collect_cycles();
+        \gc_collect_cycles();
     }
 
     /**
