@@ -17,7 +17,7 @@ class CapturerTest extends TestCase
         $this->capturerHelper = new Capturer();
     }
 
-    public function testInvoke()
+    public function testInvoke(): void
     {
         $invokableObject = $this->capturerHelper;
         $return = $invokableObject('test1');
@@ -26,7 +26,7 @@ class CapturerTest extends TestCase
         $this->assertEquals('test1', $return->getContentKey());
     }
 
-    public function testStart()
+    public function testStart(): void
     {
        $preObLevel = \ob_get_level();
 
@@ -38,7 +38,7 @@ class CapturerTest extends TestCase
        $this->assertEquals($postObLevel, $preObLevel + 1);
     }
 
-    public function testEnd()
+    public function testEnd(): void
     {
         $invokableObject = $this->capturerHelper;
         $helper = $invokableObject('test1');
@@ -51,19 +51,19 @@ class CapturerTest extends TestCase
         $this->assertEquals('teeest', $helper->getContent());
     }
 
-    public function testEndFail()
+    public function testEndFail(): void
     {
         $this->expectException(\LogicException::class);
         $this->capturerHelper->end();
     }
 
-    public function testGetContentFail()
+    public function testGetContentFail(): void
     {
         $this->expectException(\LogicException::class);
         $this->capturerHelper->getContent();
     }
 
-    public function testGetContentFail2()
+    public function testGetContentFail2(): void
     {
         $invokableObject = $this->capturerHelper;
         $helper = $invokableObject('test1');

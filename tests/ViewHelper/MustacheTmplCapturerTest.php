@@ -12,12 +12,12 @@ class MustacheTmplCapturerTest extends TestCase
      */
     protected $capturerHelper;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->capturerHelper = new MustacheTmplCapturer();
     }
 
-    public function testCapturer()
+    public function testCapturer(): void
     {
         $invokableObject = $this->capturerHelper;
         $helper = $invokableObject('test1');

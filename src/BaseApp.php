@@ -60,7 +60,7 @@ class BaseApp extends Container
      * @param array|Config $config
      * @param string       $environment Defaults to "production"
      */
-    public function __construct($config = [], $environment = 'production')
+    public function __construct(array $config = [], string $environment = 'production')
     {
         if ($config instanceof Config) {
             $this->config = $config;
@@ -81,7 +81,7 @@ class BaseApp extends Container
      * mock objects can't be injected in their place. Place object instance code in
      * the preHandle method.
      */
-    protected function init()
+    protected function init(): void
     {
         $this->isCli = (PHP_SAPI === 'cli');
 
@@ -95,7 +95,7 @@ class BaseApp extends Container
     /**
      * Register service providers.
      */
-    protected function registerProviders()
+    protected function registerProviders(): void
     {
         $this->register(new ErrorServiceProvider());
         $this->register(new StandardServiceProvider());
@@ -106,7 +106,7 @@ class BaseApp extends Container
      *
      * @param ServiceProviderInterface $provider
      */
-    public function register(ServiceProviderInterface $provider)
+    public function register(ServiceProviderInterface $provider): void
     {
         $this->providers[] = $provider;
 
@@ -117,7 +117,7 @@ class BaseApp extends Container
      * @param array  $phpSettings
      * @param string $prefix
      */
-    protected function setPhpSettings($phpSettings, $prefix = '')
+    protected function setPhpSettings(array $phpSettings, string $prefix = ''): void
     {
         foreach ($phpSettings as $key => $val) {
             $key = $prefix . $key;
@@ -135,7 +135,7 @@ class BaseApp extends Container
      * This is normally called by handle(). If requests are not handled
      * this method will have to called manually to boot.
      */
-    public function boot()
+    public function boot(): void
     {
         if ($this->booted) {
             return;
@@ -159,7 +159,7 @@ class BaseApp extends Container
      * @param Request $request
      * @return Response|null
      */
-    protected function preHandle(Request $request)
+    protected function preHandle(Request $request): ?Response
     {
         return null;
     }
@@ -172,7 +172,7 @@ class BaseApp extends Container
      * @param Request $request
      * @return Response|null
      */
-    protected function postRoute(Request $request)
+    protected function postRoute(Request $request): ?Response
     {
         return null;
     }
@@ -183,7 +183,7 @@ class BaseApp extends Container
      * @param Request $request
      * @return Response
      */
-    public function handle(Request $request)
+    public function handle(Request $request): Response
     {
         $this->alias('request', Request::class);
         $this->set(Request::class, $request);
@@ -217,7 +217,7 @@ class BaseApp extends Container
      * @param Request $request
      * @return Response
      */
-    protected function getNoRouteResponse(Request $request)
+    protected function getNoRouteResponse(Request $request): Response
     {
         return new Response('Not Found', 404);
     }
@@ -229,14 +229,14 @@ class BaseApp extends Container
      *
      * @param Request $request
      */
-    protected function postHandle(Request $request)
+    protected function postHandle(Request $request): void
     {
     }
 
     /**
      * @return Config
      */
-    public function getConfig()
+    public function getConfig(): Config
     {
         return $this->config;
     }
@@ -252,7 +252,7 @@ class BaseApp extends Container
     /**
      * @return Request|null
      */
-    public function getRequest()
+    public function getRequest(): ?Request
     {
         return $this->has(Request::class) ? $this->get(Request::class) : null;
     }
@@ -260,7 +260,7 @@ class BaseApp extends Container
     /**
      * @return string
      */
-    public function getEnvironment()
+    public function getEnvironment(): string
     {
         return $this->environment;
     }

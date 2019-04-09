@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
  */
 class PaginationTest extends TestCase
 {
-    public function testInvoke()
+    public function testInvoke(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockRequest->query = $this->createMock(\Symfony\Component\HttpFoundation\ParameterBag::class);
@@ -32,7 +32,7 @@ class PaginationTest extends TestCase
         $this->assertContains('<div', $return);
     }
 
-    public function testInvokeException()
+    public function testInvokeException(): void
     {
         $this->expectException(\LogicException::class);
 

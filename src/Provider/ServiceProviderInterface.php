@@ -15,5 +15,5 @@ use Starlit\App\BaseApp;
  */
 interface ServiceProviderInterface
 {
-    public function register(BaseApp $app);
+    public function register(BaseApp $app): void;
 }

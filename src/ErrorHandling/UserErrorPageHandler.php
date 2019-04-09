@@ -23,7 +23,7 @@ class UserErrorPageHandler extends Handler
     /**
      * @param string $errorPagePath
      */
-    public function __construct($errorPagePath)
+    public function __construct(string $errorPagePath)
     {
         $this->errorPagePath = $errorPagePath;
     }
@@ -31,7 +31,7 @@ class UserErrorPageHandler extends Handler
     /**
      * @return int|null
      */
-    public function handle()
+    public function handle(): ?int
     {
         if (php_sapi_name() === 'cli') {
             return Handler::DONE;

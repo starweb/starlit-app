@@ -15,5 +15,5 @@ use Starlit\App\BaseApp;
  */
 interface BootableServiceProviderInterface extends ServiceProviderInterface
 {
-    public function boot(BaseApp $app);
+    public function boot(BaseApp $app): void;
 }

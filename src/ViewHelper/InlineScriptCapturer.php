@@ -18,9 +18,11 @@ class InlineScriptCapturer extends Capturer
     /**
      * End capturing (overridden).
      */
-    public function end()
+    public function end(): AbstractViewHelper
     {
         // Get the captured contents and end this output buffer
         $this->view->inlineJs .= \ob_get_clean();
+
+        return $this;
     }
 }

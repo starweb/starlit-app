@@ -24,7 +24,7 @@ abstract class AbstractViewHelper
      * @param View $view
      * @return AbstractViewHelper
      */
-    public function setView(View $view)
+    public function setView(View $view): self
     {
         $this->view = $view;
 

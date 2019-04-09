@@ -74,10 +74,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Check if a DIC value/object exists.
-     *
-     * @param string $key
-     * @return bool
+     * @inheritdoc
      */
     public function has($key): bool
     {
@@ -92,7 +89,7 @@ class Container implements ContainerInterface
      * @param string $key
      * @return bool
      */
-    public function hasInstance($key): bool
+    public function hasInstance(string $key): bool
     {
         if (isset($this->aliases[$key])) {
             $key = $this->aliases[$key];
@@ -102,10 +99,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Get the shared instance of a DIC object
-     *
-     * @param string $key
-     * @return mixed
+     * @inheritdoc
      */
     public function get($key)
     {
@@ -205,7 +199,7 @@ class Container implements ContainerInterface
      * @param array  $arguments
      * @return mixed
      */
-    public function __call($name, $arguments)
+    public function __call(string $name, array $arguments)
     {
         // getNew followed by an upper letter like getNewApple()
         if (\preg_match('/^getNew([A-Z].*)/', $name, $matches)) {
@@ -259,6 +253,8 @@ class Container implements ContainerInterface
      * Recursively resolve function parameters using type hints
      *
      * @param \ReflectionParameter[] $parameters
+     * @param array $predefinedValues
+     * @return array
      * @throws \ReflectionException
      */
     public function resolveParameters(array $parameters, array $predefinedValues = []): array
