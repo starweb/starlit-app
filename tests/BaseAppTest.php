@@ -101,8 +101,12 @@ class BaseAppTest extends TestCase
     public function testHandlePreHandleResponse(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-
-        $mockBaseApp = new TestBaseAppWithPreHandleResponse($this->fakeConfig, $this->fakeEnv);
+        $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp {
+            protected function preHandle(Request $request)
+            {
+                return new Response('Pre handle response');
+            }
+        });
         $response = $mockBaseApp->handle($mockRequest);
 
         $this->assertEquals('Pre handle response', $response->getContent());
@@ -113,8 +117,12 @@ class BaseAppTest extends TestCase
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockRouter = $this->createMock(Router::class);
         $mockController = $this->createMock(\Starlit\App\AbstractController::class);
-
-        $mockBaseApp = new TestBaseAppWithPostRouteResponse($this->fakeConfig, $this->fakeEnv);
+        $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp {
+            protected function postRoute(Request $request)
+            {
+                return new Response('Post route response');
+            }
+        });
 
         $mockRouter->expects($this->once())
             ->method('route')
@@ -246,20 +254,5 @@ class BaseAppTest extends TestCase
     public function testHasNoRequest(): void
     {
         $this->assertFalse($this->app->has(Request::class));
-    }
-}
-
-class TestBaseAppWithPreHandleResponse extends BaseApp
-{
-    protected function preHandle(Request $request): ?Response
-    {
-        return new Response('Pre handle response');
-    }
-}
-class TestBaseAppWithPostRouteResponse extends BaseApp
-{
-    protected function postRoute(Request $request): ?Response
-    {
-        return new Response('Post route response');
     }
 }
