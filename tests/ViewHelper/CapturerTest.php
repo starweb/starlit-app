@@ -28,12 +28,12 @@ class CapturerTest extends TestCase
 
     public function testStart()
     {
-       $preObLevel = ob_get_level();
+       $preObLevel = \ob_get_level();
 
        $this->capturerHelper->start();
 
-       $postObLevel = ob_get_level();
-       ob_end_clean(); // We don't want an open output buffer
+       $postObLevel = \ob_get_level();
+       \ob_end_clean(); // We don't want an open output buffer
 
        $this->assertEquals($postObLevel, $preObLevel + 1);
     }

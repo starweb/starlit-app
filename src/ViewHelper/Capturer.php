@@ -54,7 +54,7 @@ class Capturer extends AbstractViewHelper
     public function start()
     {
         // Start capturing
-        ob_start();
+        \ob_start();
     }
 
     /**
@@ -69,7 +69,7 @@ class Capturer extends AbstractViewHelper
         }
 
         // Get the captured contents and end this output buffer
-        $this->capturedContent[$this->activeContentKey] = ob_get_clean();
+        $this->capturedContent[$this->activeContentKey] = \ob_get_clean();
 
         return $this;
     }

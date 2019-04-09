@@ -21,6 +21,6 @@ class InlineScriptCapturer extends Capturer
     public function end()
     {
         // Get the captured contents and end this output buffer
-        $this->view->inlineJs .= ob_get_clean();
+        $this->view->inlineJs .= \ob_get_clean();
     }
 }

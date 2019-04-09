@@ -201,7 +201,7 @@ abstract class AbstractController
      */
     public function getAutoRenderViewScriptName($action, $controller, $module = null)
     {
-        $viewScriptName = implode('/', array_filter([$module, $controller, $action]));
+        $viewScriptName = \implode('/', \array_filter([$module, $controller, $action]));
 
         return $viewScriptName;
     }
@@ -239,7 +239,7 @@ abstract class AbstractController
             $actualController = new $controllerClass($this->app, $this->request);
 
             // Set new request properties
-            $this->request->attributes->add(compact('module', 'controller', 'action'));
+            $this->request->attributes->add(\compact('module', 'controller', 'action'));
 
             return $actualController->dispatch($action, $actionArgs);
         }
@@ -262,7 +262,7 @@ abstract class AbstractController
         }
 
         if ($parameters) {
-            $mergedParameters = array_merge($this->get(), $parameters);
+            $mergedParameters = \array_merge($this->get(), $parameters);
             $url = (string) (new Url($url))->addQueryParameters($mergedParameters);
         }
 
