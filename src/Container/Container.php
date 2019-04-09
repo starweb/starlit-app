@@ -41,7 +41,7 @@ class Container implements ContainerInterface
      * @param mixed  $value
      * @return Container
      */
-    public function set(string $key, $value): self
+    public function set(string $key, $value): ContainerInterface
     {
         if (!(\is_string($value) || \is_object($value))) {
             throw new \InvalidArgumentException('Value must be a class name, an object instance, or a callable');
@@ -61,7 +61,7 @@ class Container implements ContainerInterface
         );
     }
 
-    public function alias(string $alias, string $key): self
+    public function alias(string $alias, string $key): ContainerInterface
     {
         $this->aliases[$alias] = $key;
 
