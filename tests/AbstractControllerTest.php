@@ -404,12 +404,11 @@ class TestController extends AbstractController
 
     protected function preDispatch($action): ?Response
     {
-        parent::preDispatch($action); // For code coverage...
-
         if ($action === 'pre-test') {
             return new Response('preOk');
         }
 
+        return parent::preDispatch($action); // For code coverage...
     }
 
     public function stringReturnAction(): string
