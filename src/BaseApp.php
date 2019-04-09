@@ -121,9 +121,9 @@ class BaseApp extends Container
     {
         foreach ($phpSettings as $key => $val) {
             $key = $prefix . $key;
-            if (is_scalar($val)) {
-                ini_set($key, $val);
-            } elseif (is_array($val)) {
+            if (\is_scalar($val)) {
+                \ini_set($key, $val);
+            } elseif (\is_array($val)) {
                 $this->setPhpSettings($val, $key . '.'); // Set sub setting with a recursive call
             }
         }

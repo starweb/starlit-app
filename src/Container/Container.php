@@ -43,7 +43,7 @@ class Container implements ContainerInterface
      */
     public function set(string $key, $value): self
     {
-        if (!(is_string($value) || is_object($value))) {
+        if (!(\is_string($value) || \is_object($value))) {
             throw new \InvalidArgumentException('Value must be a class name, an object instance, or a callable');
         }
 
@@ -158,9 +158,9 @@ class Container implements ContainerInterface
     private function getValueInstance(string $key)
     {
         $value = $this->dicValues[$key];
-        if (is_object($value)) {
+        if (\is_object($value)) {
             // Is it an invokable? (closure/anonymous function)
-            if (method_exists($value, '__invoke')) {
+            if (\method_exists($value, '__invoke')) {
                 return $value($this);
             }
             return $value;
@@ -208,21 +208,21 @@ class Container implements ContainerInterface
     public function __call($name, $arguments)
     {
         // getNew followed by an upper letter like getNewApple()
-        if (preg_match('/^getNew([A-Z].*)/', $name, $matches)) {
-            $key = lcfirst($matches[1]);
+        if (\preg_match('/^getNew([A-Z].*)/', $name, $matches)) {
+            $key = \lcfirst($matches[1]);
 
             return $this->getNew($key);
-        } elseif (strpos($name, 'get') === 0) {
-            $key = lcfirst(substr($name, 3));
+        } elseif (\strpos($name, 'get') === 0) {
+            $key = \lcfirst(\substr($name, 3));
 
             return $this->get($key);
-        } elseif (strpos($name, 'set') === 0) {
+        } elseif (\strpos($name, 'set') === 0) {
             $argumentCount = count($arguments);
             if ($argumentCount !== 1) {
                 throw new \BadMethodCallException("Invalid argument count[{$argumentCount}] for application {$name}()");
             }
 
-            $key = lcfirst(substr($name, 3));
+            $key = \lcfirst(substr($name, 3));
 
             return $this->set($key, $arguments[0]);
         } else {

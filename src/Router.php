@@ -116,7 +116,7 @@ class Router implements RouterInterface
      */
     private function addRouteFromConfig($name, array $routeConfig): void
     {
-        if (array_key_exists('path', $routeConfig)) {
+        if (\array_key_exists('path', $routeConfig)) {
             $path = $routeConfig['path'];
         } else {
             $path = $name;
@@ -199,19 +199,19 @@ class Router implements RouterInterface
         $module = $this->getRequestModule($request);
         $controller = $this->getRequestController($request);
         $action = $this->getRequestAction($request);
-        $request->attributes->add(compact('module', 'controller', 'action'));
+        $request->attributes->add(\compact('module', 'controller', 'action'));
 
         // Get callable names
         $controllerClass = $this->getControllerClass($controller, $module);
         $actionMethod = $this->getActionMethod($action);
 
         // Check that controller exist
-        if (!class_exists($controllerClass)) {
+        if (!\class_exists($controllerClass)) {
             throw new ResourceNotFoundException("Controller \"{$controllerClass}\" does not exist");
         }
 
         // Check that action exist (we don't use method_exists because PHP's method case insensitivity)
-        $controllerMethods = get_class_methods($controllerClass);
+        $controllerMethods = \get_class_methods($controllerClass);
         if (!in_array($actionMethod, $controllerMethods, true)) {
             throw new ResourceNotFoundException("Action method \"{$controllerClass}::{$actionMethod}\" does not exist");
         }
@@ -235,7 +235,7 @@ class Router implements RouterInterface
 
         $controllerClassName = Str::separatorToCamel($controller, '-', true) . $this->controllerClassSuffix;
 
-        return '\\' . implode('\\', array_filter([
+        return '\\' . \implode('\\', \array_filter([
             $moduleNamespace,
             $this->controllerNamespace,
             $controllerClassName

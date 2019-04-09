@@ -177,7 +177,7 @@ class View implements ViewInterface
     /**
      * Escape a string for output in view script.
      */
-    public function escape(?string $string, int $flags = ENT_QUOTES): string
+    public function escape(?string $string, int $flags = \ENT_QUOTES): string
     {
         return htmlspecialchars($string, $flags, BaseApp::CHARSET);
     }
@@ -224,7 +224,7 @@ class View implements ViewInterface
     {
         $helper = $this->getHelper($name);
         if (is_callable($helper)) {
-            return call_user_func_array($helper, $arguments);
+            return \call_user_func_array($helper, $arguments);
         }
 
         return $helper;
