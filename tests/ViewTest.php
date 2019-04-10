@@ -97,7 +97,14 @@ class ViewTest extends TestCase
 
     public function test__callInvokable(): void
     {
-        $this->view->addHelperClass('invokableTestHelper', \Starlit\App\InvokableTestHelper::class);
+        $invokableTestHelper = (new class() extends \Starlit\App\ViewHelper\AbstractViewHelper
+        {
+            public function __invoke(string $parameter): string
+            {
+                return $parameter;
+            }
+        });
+        $this->view->addHelperClass('invokableTestHelper', \get_class($invokableTestHelper));
 
         $result = $this->view->__call('invokableTestHelper', ['testarg']);
         $this->assertEquals('testarg', $result);
@@ -123,13 +130,5 @@ class ViewTest extends TestCase
         $content = 'test';
         $this->view->setLayoutContent($content);
         $this->assertEquals($content, $this->view->layoutContent());
-    }
-}
-
-class InvokableTestHelper extends \Starlit\App\ViewHelper\AbstractViewHelper
-{
-    public function __invoke(string $parameter): string
-    {
-        return $parameter;
     }
 }
