@@ -117,7 +117,7 @@ class BaseAppTest extends TestCase
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp {
-            protected function preHandle(Request $request)
+            protected function preHandle(Request $request): ?Response
             {
                 return new Response('Pre handle response');
             }
@@ -133,7 +133,7 @@ class BaseAppTest extends TestCase
         $mockRouter = $this->createMock(Router::class);
         $mockController = $this->createMock(\Starlit\App\AbstractController::class);
         $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp {
-            protected function postRoute(Request $request)
+            protected function postRoute(Request $request): ?Response
             {
                 return new Response('Post route response');
             }
