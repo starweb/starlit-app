@@ -8,11 +8,6 @@
 
 namespace Starlit\App\ViewHelper;
 
-/**
- * View helper to Capturing output content like inline javascript etc.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class Capturer extends AbstractViewHelper
 {
     /**
@@ -25,12 +20,6 @@ class Capturer extends AbstractViewHelper
      */
     protected $activeContentKey;
 
-    /**
-     * Magic method called when object is called as a function.
-     *
-     * @param string $contentKey
-     * @return Capturer|AbstractViewHelper
-     */
     public function __invoke(string $contentKey = null): AbstractViewHelper
     {
         if ($contentKey !== null) {
@@ -40,17 +29,11 @@ class Capturer extends AbstractViewHelper
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getContentKey(): string
     {
         return $this->activeContentKey;
     }
 
-    /**
-     * Start capturing.
-     */
     public function start(): void
     {
         // Start capturing
@@ -58,9 +41,7 @@ class Capturer extends AbstractViewHelper
     }
 
     /**
-     * End capturing.
-     *
-     * @return Capturer|AbstractViewHelper
+     * @throws \LogicException
      */
     public function end(): AbstractViewHelper
     {
@@ -75,9 +56,7 @@ class Capturer extends AbstractViewHelper
     }
 
     /**
-     * Get captured content.
-     *
-     * @return string
+     * @throws \LogicException
      */
     public function getContent(): string
     {

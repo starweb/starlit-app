@@ -17,11 +17,6 @@ use Starlit\App\Provider\ServiceProviderInterface;
 use Starlit\App\Provider\StandardServiceProvider;
 use Starlit\App\Provider\ErrorServiceProvider;
 
-/**
- * Main framework application and bootstrap class, which also serves as a micro service/dependency injection container.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class BaseApp extends Container
 {
     /**
@@ -92,20 +87,12 @@ class BaseApp extends Container
         $this->registerProviders();
     }
 
-    /**
-     * Register service providers.
-     */
     protected function registerProviders(): void
     {
         $this->register(new ErrorServiceProvider());
         $this->register(new StandardServiceProvider());
     }
 
-    /**
-     * Register service provider.
-     *
-     * @param ServiceProviderInterface $provider
-     */
     public function register(ServiceProviderInterface $provider): void
     {
         $this->providers[] = $provider;
@@ -113,10 +100,6 @@ class BaseApp extends Container
         $provider->register($this);
     }
 
-    /**
-     * @param array  $phpSettings
-     * @param string $prefix
-     */
     protected function setPhpSettings(array $phpSettings, string $prefix = ''): void
     {
         foreach ($phpSettings as $key => $val) {
@@ -211,12 +194,6 @@ class BaseApp extends Container
         return $response;
     }
 
-    /**
-     * Returns a response for no route / resource not found.
-     *
-     * @param Request $request
-     * @return Response
-     */
     protected function getNoRouteResponse(Request $request): Response
     {
         return new Response('Not Found', 404);
@@ -233,33 +210,21 @@ class BaseApp extends Container
     {
     }
 
-    /**
-     * @return Config
-     */
     public function getConfig(): Config
     {
         return $this->config;
     }
 
-    /**
-     * @return bool
-     */
     public function isCli(): bool
     {
         return $this->isCli;
     }
 
-    /**
-     * @return Request|null
-     */
     public function getRequest(): ?Request
     {
         return $this->has(Request::class) ? $this->get(Request::class) : null;
     }
 
-    /**
-     * @return string
-     */
     public function getEnvironment(): string
     {
         return $this->environment;

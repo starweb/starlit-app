@@ -8,18 +8,8 @@
 
 namespace Starlit\App\ViewHelper;
 
-/**
- * Mustache template capture view helper.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class MustacheTmplCapturer extends Capturer
 {
-    /**
-     * Get captured content in and including script tags.
-     *
-     * @return string
-     */
     public function getScript(): string
     {
         return '<script type="text/x-mustache" id="' . $this->activeContentKey . '">' . "\n"

@@ -10,11 +10,6 @@ namespace Starlit\App;
 
 use Starlit\Utils\Arr;
 
-/**
- * Configuration container.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class Config implements \ArrayAccess
 {
     /**
@@ -22,22 +17,11 @@ class Config implements \ArrayAccess
      */
     protected $data;
 
-    /**
-     * Constructor.
-     *
-     * @param array $data
-     */
     public function __construct(array $data = [])
     {
         $this->data = $data;
     }
 
-    /**
-     * Determine if the given configuration value exists.
-     *
-     * @param string $key
-     * @return bool
-     */
     public function has(string $key): bool
     {
         if (empty($this->data[$key])) {
@@ -79,11 +63,6 @@ class Config implements \ArrayAccess
         return $this->get($key);
     }
 
-    /**
-     * Get all configuration data.
-     *
-     * @return array
-     */
     public function all(): array
     {
         return $this->data;

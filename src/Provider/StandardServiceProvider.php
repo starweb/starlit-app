@@ -16,11 +16,10 @@ use Starlit\App\ViewInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
-/**
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class StandardServiceProvider implements ServiceProviderInterface
 {
     /**
@@ -31,9 +30,9 @@ class StandardServiceProvider implements ServiceProviderInterface
         $app->alias('sessionStorage', SessionStorageInterface::class);
         $app->set(SessionStorageInterface::class, function (BaseApp $app) {
             if ($app->isCli()) {
-                return new \Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage();
+                return new MockArraySessionStorage();
             }
-            return new \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage();
+            return new NativeSessionStorage();
         });
 
         $app->alias('session', SessionInterface::class);
