@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -15,5 +15,5 @@ use Starlit\App\BaseApp;
  */
 interface BootableServiceProviderInterface extends ServiceProviderInterface
 {
-    public function boot(BaseApp $app);
+    public function boot(BaseApp $app): void;
 }

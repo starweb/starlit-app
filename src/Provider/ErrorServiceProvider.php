@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -18,7 +18,7 @@ class ErrorServiceProvider implements ServiceProviderInterface
     /**
      * @param BaseApp $app
      */
-    public function register(BaseApp $app)
+    public function register(BaseApp $app): void
     {
         $app->alias('errorLogger', \Monolog\Logger::class);
         $app->set(\Monolog\Logger::class, function (BaseApp $app) {

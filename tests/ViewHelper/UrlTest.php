@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Starlit\App\ViewHelper;
 
 use PHPUnit\Framework\TestCase;
@@ -12,7 +12,7 @@ class UrlTest extends TestCase
      */
     protected $urlHelper;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->urlHelper = new Url();
 
@@ -34,14 +34,14 @@ class UrlTest extends TestCase
         $this->urlHelper->setView($view);
     }
 
-    public function testInvokeRelativeUrl()
+    public function testInvokeRelativeUrl(): void
     {
         $invokableObject = $this->urlHelper;
 
         $this->assertEquals('/hej/plopp', $invokableObject('/hej/plopp'));
     }
 
-    public function testInvoke()
+    public function testInvoke(): void
     {
         $invokableObject = $this->urlHelper;
 
@@ -49,7 +49,7 @@ class UrlTest extends TestCase
         $this->assertEquals('/hej/hopp?a=1&amp;b=2', $url);
     }
 
-    public function testInvokeException()
+    public function testInvokeException(): void
     {
         $this->expectException(\LogicException::class);
 

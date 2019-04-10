@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -29,9 +29,9 @@ class Capturer extends AbstractViewHelper
      * Magic method called when object is called as a function.
      *
      * @param string $contentKey
-     * @return Capturer
+     * @return Capturer|AbstractViewHelper
      */
-    public function __invoke($contentKey = null)
+    public function __invoke(string $contentKey = null): AbstractViewHelper
     {
         if ($contentKey !== null) {
             $this->activeContentKey = $contentKey;
@@ -43,7 +43,7 @@ class Capturer extends AbstractViewHelper
     /**
      * @return string
      */
-    public function getContentKey()
+    public function getContentKey(): string
     {
         return $this->activeContentKey;
     }
@@ -51,7 +51,7 @@ class Capturer extends AbstractViewHelper
     /**
      * Start capturing.
      */
-    public function start()
+    public function start(): void
     {
         // Start capturing
         \ob_start();
@@ -60,9 +60,9 @@ class Capturer extends AbstractViewHelper
     /**
      * End capturing.
      *
-     * @return Capturer
+     * @return Capturer|AbstractViewHelper
      */
-    public function end()
+    public function end(): AbstractViewHelper
     {
         if (empty($this->activeContentKey)) {
             throw new \LogicException('Specify view helper Capturer\'s content key for ending capture');
@@ -79,7 +79,7 @@ class Capturer extends AbstractViewHelper
      *
      * @return string
      */
-    public function getContent()
+    public function getContent(): string
     {
         if (empty($this->activeContentKey)) {
             throw new \LogicException('Specify view helper Capturer\'s content key for getting content');

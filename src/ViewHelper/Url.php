@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -23,7 +23,7 @@ class Url extends AbstractViewHelper
      * @param string $argSeparator
      * @return string
      */
-    public function __invoke($relativeUrl = null, array $parameters = [], $argSeparator = '&amp;')
+    public function __invoke(string $relativeUrl = null, array $parameters = [], string $argSeparator = '&amp;'): string
     {
         if (!$this->view || !($request = $this->view->getRequest())) {
             throw new \LogicException('View request is required for this view helper');

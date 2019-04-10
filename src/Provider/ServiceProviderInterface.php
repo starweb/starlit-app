@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -15,5 +15,5 @@ use Starlit\App\BaseApp;
  */
 interface ServiceProviderInterface
 {
-    public function register(BaseApp $app);
+    public function register(BaseApp $app): void;
 }

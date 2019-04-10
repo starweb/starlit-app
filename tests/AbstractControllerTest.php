@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Starlit\App;
 
 use PHPUnit\Framework\TestCase;
@@ -39,7 +39,7 @@ class AbstractControllerTest extends TestCase
      */
     protected $mockRouter;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mockApp = $this->createMock(BaseApp::class);
         $this->mockRequest = $this->createMock(Request::class);
@@ -81,7 +81,7 @@ class AbstractControllerTest extends TestCase
         $this->testController = new TestController($this->mockApp, $this->mockRequest);
     }
 
-    public function testConstruct()
+    public function testConstruct(): void
     {
         // check view
         $rObject = new \ReflectionObject($this->testController);
@@ -90,7 +90,7 @@ class AbstractControllerTest extends TestCase
         $this->assertInstanceOf(\Starlit\App\View::class, $prop->getValue($this->testController));
     }
 
-    public function testSetAutoRenderView()
+    public function testSetAutoRenderView(): void
     {
         $this->testController->setAutoRenderView(false);
 
@@ -101,7 +101,7 @@ class AbstractControllerTest extends TestCase
         $this->assertFalse($prop->getValue($this->testController));
     }
 
-    public function testSetAutoRenderViewScript()
+    public function testSetAutoRenderViewScript(): void
     {
         $this->testController->setAutoRenderViewScript('someScript');
 
@@ -112,7 +112,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('someScript', $prop->getValue($this->testController));
     }
 
-    public function testDispatch()
+    public function testDispatch(): void
     {
         // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
@@ -133,7 +133,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('yes', $response->getContent());
     }
 
-    public function testDispatchPreDispatch()
+    public function testDispatchPreDispatch(): void
     {
         // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
@@ -145,7 +145,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('preOk', $response->getContent());
     }
 
-    public function testDispatchSpecifiedWithResponseAndParamAction()
+    public function testDispatchSpecifiedWithResponseAndParamAction(): void
     {
         // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
@@ -163,7 +163,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('ooh aaa wow', $response->getContent());
     }
 
-    public function testDispatchWithoutReqParam()
+    public function testDispatchWithoutReqParam(): void
     {
         // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
@@ -181,7 +181,7 @@ class AbstractControllerTest extends TestCase
         $this->testController->dispatch('some-other');
     }
 
-    public function testDispatchNonExistingAction()
+    public function testDispatchNonExistingAction(): void
     {
         // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
@@ -194,7 +194,7 @@ class AbstractControllerTest extends TestCase
         $this->testController->dispatch('none');
     }
 
-    public function testDispatchInvalidAction()
+    public function testDispatchInvalidAction(): void
     {
         // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
@@ -207,7 +207,7 @@ class AbstractControllerTest extends TestCase
         $this->testController->dispatch('invalid');
     }
 
-    public function testDispatchNoAutoAction()
+    public function testDispatchNoAutoAction(): void
     {
         // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
@@ -220,7 +220,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('', $response->getContent());
     }
 
-    public function testDispatchStringReturn()
+    public function testDispatchStringReturn(): void
     {
         // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
@@ -233,7 +233,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('a string', $response->getContent());
     }
 
-    public function testForwardInternal()
+    public function testForwardInternal(): void
     {
         // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
@@ -252,7 +252,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('eeend', $response->getContent());
     }
 
-    public function testForward()
+    public function testForward(): void
     {
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
@@ -276,7 +276,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('eeend', $response->getContent());
     }
 
-    public function testForwardWithModule()
+    public function testForwardWithModule(): void
     {
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
@@ -298,7 +298,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('eeend', $response->getContent());
     }
 
-    public function testGetUrlNoUrl()
+    public function testGetUrlNoUrl(): void
     {
         $this->mockRequest->expects($this->any())
             ->method('getSchemeAndHttpHost')
@@ -315,7 +315,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('http://www.example.org/hej/hopp', $method->invokeArgs($this->testController, []));
     }
 
-    public function testGetUrl()
+    public function testGetUrl(): void
     {
         $this->mockRequest->expects($this->any())
             ->method('getSchemeAndHttpHost')
@@ -333,7 +333,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals('http://www.example.org/hej/hopp?a=1&b=2', $method->invokeArgs($this->testController, ['/hej/hopp', ['b' => '2']]));
     }
 
-    public function testGet()
+    public function testGet(): void
     {
         $get = ['a' => 1, 'b' => 2];
         $this->mockRequest->query = $this->createMock(ParameterBag::class);
@@ -353,7 +353,7 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals($get['a'], $method->invokeArgs($this->testController, ['a']));
     }
 
-    public function testPost()
+    public function testPost(): void
     {
         $get = ['a' => 1, 'b' => 2];
         $this->mockRequest->request = $this->createMock(ParameterBag::class);
@@ -377,41 +377,41 @@ class AbstractControllerTest extends TestCase
 class TestController extends AbstractController
 {
 
-    public function indexAction()
+    public function indexAction(): void
     {
     }
 
-    public function someOtherAction($someParam, $otherParam, $paramWithDefault = 'wow')
+    public function someOtherAction($someParam, $otherParam, $paramWithDefault = 'wow'): Response
     {
         return new Response($someParam . ' ' . $otherParam . ' ' . $paramWithDefault);
     }
 
-    protected function invalidAction()
+    protected function invalidAction(): void
     {
     }
 
-    public function noAutoAction()
+    public function noAutoAction(): void
     {
         $this->setAutoRenderView(false);
     }
 
-    public function forwardEndAction()
+    public function forwardEndAction(): Response
     {
         return new Response('eeend');
     }
 
     public function preTestAction() { }
 
-    protected function preDispatch($action)
+    protected function preDispatch($action): ?Response
     {
-        parent::preDispatch($action); // For code coverage...
-
         if ($action === 'pre-test') {
             return new Response('preOk');
         }
+
+        return parent::preDispatch($action); // For code coverage...
     }
 
-    public function stringReturnAction()
+    public function stringReturnAction(): string
     {
         return 'a string';
     }

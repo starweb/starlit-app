@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -114,7 +114,7 @@ class Router implements RouterInterface
      * @param string $name
      * @param array $routeConfig
      */
-    private function addRouteFromConfig($name, array $routeConfig): void
+    private function addRouteFromConfig(string $name, array $routeConfig): void
     {
         if (\array_key_exists('path', $routeConfig)) {
             $path = $routeConfig['path'];
@@ -253,7 +253,7 @@ class Router implements RouterInterface
 
     /**
      * @param Request $request
-     * @return string
+     * @return string|null
      */
     public function getRequestModule(Request $request): ?string
     {

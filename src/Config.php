@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -38,7 +38,7 @@ class Config implements \ArrayAccess
      * @param string $key
      * @return bool
      */
-    public function has($key)
+    public function has(string $key): bool
     {
         if (empty($this->data[$key])) {
             return false;
@@ -54,7 +54,7 @@ class Config implements \ArrayAccess
      * @param mixed  $default
      * @return mixed
      */
-    public function get($key, $default = null)
+    public function get(string $key, $default = null)
     {
         if ($this->has($key)) {
             return $this->data[$key];
@@ -65,13 +65,12 @@ class Config implements \ArrayAccess
 
     /**
      * Get the specified required configuration value.
-     *
      * Will throw an exception if not set.
      *
      * @param string $key
      * @return mixed
      */
-    public function getRequired($key)
+    public function getRequired(string $key)
     {
         if (!$this->has($key)) {
             throw new \RuntimeException("Config key \"{$key}\" not found");
@@ -85,7 +84,7 @@ class Config implements \ArrayAccess
      *
      * @return array
      */
-    public function all()
+    public function all(): array
     {
         return $this->data;
     }
@@ -96,7 +95,7 @@ class Config implements \ArrayAccess
      * @param string $key
      * @return bool
      */
-    public function offsetExists($key)
+    public function offsetExists($key): bool
     {
         return $this->has($key);
     }
@@ -117,8 +116,9 @@ class Config implements \ArrayAccess
      *
      * @param string $key
      * @param mixed  $value
+     * @throws \LogicException
      */
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value): void
     {
         throw new \LogicException('Config is immutable');
     }
@@ -127,8 +127,9 @@ class Config implements \ArrayAccess
      * Unset a configuration option.
      *
      * @param string $key
+     * @throws \LogicException
      */
-    public function offsetUnset($key)
+    public function offsetUnset($key): void
     {
         throw new \LogicException('Config is immutable');
     }

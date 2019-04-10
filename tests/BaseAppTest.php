@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Starlit\App;
 
 use PHPUnit\Framework\TestCase;
@@ -19,7 +19,7 @@ class BaseAppTest extends TestCase
 
     protected $fakeEnv = 'blubb';
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->app = new BaseApp($this->fakeConfig, $this->fakeEnv);
     }
@@ -28,7 +28,7 @@ class BaseAppTest extends TestCase
      * @covers \Starlit\App\Provider\ErrorServiceProvider::register
      * @covers \Starlit\App\Provider\StandardServiceProvider::register
      */
-    public function testInit()
+    public function testInit(): void
     {
         $this->assertInstanceOf(Session::class, $this->app->get(Session::class));
         $this->assertInstanceOf(Router::class, $this->app->get(RouterInterface::class));
@@ -45,7 +45,7 @@ class BaseAppTest extends TestCase
         $this->assertInstanceOf(Route::class, $router->getRoutes()->get('/{controller}/{action}'));
     }
 
-    public function testBoot()
+    public function testBoot(): void
     {
         $mockProvider = $this->createMock(BootableServiceProviderInterface::class);
         $mockProvider->expects($this->once())
@@ -59,7 +59,7 @@ class BaseAppTest extends TestCase
         $this->app->boot();
     }
 
-    public function testHandle()
+    public function testHandle(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockRouter = $this->createMock(Router::class);
@@ -82,7 +82,7 @@ class BaseAppTest extends TestCase
         $this->assertEquals('respnz', $response->getContent());
     }
 
-    public function testHandleNotFound()
+    public function testHandleNotFound(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockRouter = $this->createMock(Router::class);
@@ -98,7 +98,7 @@ class BaseAppTest extends TestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    public function testHandlePreHandleResponse()
+    public function testHandlePreHandleResponse(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
 
@@ -108,7 +108,7 @@ class BaseAppTest extends TestCase
         $this->assertEquals('Pre handle response', $response->getContent());
     }
 
-    public function testHandlePostRouteResponse()
+    public function testHandlePostRouteResponse(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockRouter = $this->createMock(Router::class);
@@ -127,38 +127,38 @@ class BaseAppTest extends TestCase
         $this->assertEquals('Post route response', $response->getContent());
     }
 
-    public function testGetValue()
+    public function testGetValue(): void
     {
         $this->app->set('testKey', new \stdClass());
 
         $this->assertInstanceOf(\stdClass::class, $this->app->get('testKey'));
     }
 
-    public function testGetValueCall()
+    public function testGetValueCall(): void
     {
         $this->app->setSomeKey(new \stdClass());
 
         $this->assertInstanceOf(\stdClass::class, $this->app->getSomeKey());
     }
 
-    public function testGetFail()
+    public function testGetFail(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->app->get('invalidKey');
     }
 
-    public function testGetNew()
+    public function testGetNew(): void
     {
         $this->assertInstanceOf(ViewInterface::class, $this->app->getNew(ViewInterface::class));
     }
 
-    public function testGetNewUndefined()
+    public function testGetNewUndefined(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->app->getNew('bla');
     }
 
-    public function testGetNewInvalid()
+    public function testGetNewInvalid(): void
     {
         $this->app->set('someKey', 'someValue');
 
@@ -166,30 +166,30 @@ class BaseAppTest extends TestCase
         $this->app->getNew('someKey');
     }
 
-    public function testHasInstanceIsTrue()
+    public function testHasInstanceIsTrue(): void
     {
         $this->app->get(ViewInterface::class);
         $this->assertTrue($this->app->hasInstance(ViewInterface::class));
     }
 
-    public function testHasInstanceIsFalse()
+    public function testHasInstanceIsFalse(): void
     {
         $this->assertFalse($this->app->hasInstance('nonExistentObject'));
     }
 
-    public function test__callFail()
+    public function test__callFail(): void
     {
         $this->expectException(\BadMethodCallException::class);
         $this->app->setBla();
     }
 
-    public function test__callFail2()
+    public function test__callFail2(): void
     {
         $this->expectException(\BadMethodCallException::class);
         $this->app->fail();
     }
 
-    public function testDestroyInstance()
+    public function testDestroyInstance(): void
     {
         $count = 0;
         $this->app->set('testObj', function () use (&$count) {
@@ -207,7 +207,7 @@ class BaseAppTest extends TestCase
         $this->assertEquals($obj2->id, $obj3->id);
     }
 
-    public function testDestroyAllInstances()
+    public function testDestroyAllInstances(): void
     {
         $count = 0;
         $this->app->set('testObj', function () use (&$count) {
@@ -225,17 +225,17 @@ class BaseAppTest extends TestCase
         $this->assertEquals($obj2->id, $obj3->id);
     }
 
-    public function testIsCli()
+    public function testIsCli(): void
     {
         $this->assertEquals(true, $this->app->isCli());
     }
 
-    public function testGetEnvironment()
+    public function testGetEnvironment(): void
     {
         $this->assertEquals($this->fakeEnv, $this->app->getEnvironment());
     }
 
-    public function testGetRequestReturnsRequest()
+    public function testGetRequestReturnsRequest(): void
     {
         $mockRequest = $this->createMock(Request::class);
         $this->app->set(Request::class, $mockRequest);
@@ -243,7 +243,7 @@ class BaseAppTest extends TestCase
         $this->assertSame($mockRequest, $this->app->get(Request::class));
     }
 
-    public function testHasNoRequest()
+    public function testHasNoRequest(): void
     {
         $this->assertFalse($this->app->has(Request::class));
     }
@@ -251,14 +251,14 @@ class BaseAppTest extends TestCase
 
 class TestBaseAppWithPreHandleResponse extends BaseApp
 {
-    protected function preHandle(Request $request)
+    protected function preHandle(Request $request): ?Response
     {
         return new Response('Pre handle response');
     }
 }
 class TestBaseAppWithPostRouteResponse extends BaseApp
 {
-    protected function postRoute(Request $request)
+    protected function postRoute(Request $request): ?Response
     {
         return new Response('Post route response');
     }

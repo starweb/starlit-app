@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Starlit\App;
 
 use PHPUnit\Framework\TestCase;
@@ -17,7 +17,7 @@ class RouterTest extends TestCase
      */
     protected $mockApp;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         // Mock app
         $this->mockApp = $this->createMock(\Starlit\App\BaseApp::class);
@@ -34,7 +34,7 @@ class RouterTest extends TestCase
         ]);
     }
 
-    public function testConstructAndOptions()
+    public function testConstructAndOptions(): void
     {
         $fakeOptions = [
             'defaultModule' => 'modDef',
@@ -53,7 +53,7 @@ class RouterTest extends TestCase
         $this->assertEquals($fakeOptions['defaultAction'], $tmpObject->getDefaultAction());
     }
 
-    public function testAddClearRoute()
+    public function testAddClearRoute(): void
     {
         $mockRoute = $this->createMock(\Symfony\Component\Routing\Route::class);
         $numberOfRoutes = $this->router->getRoutes()->count();
@@ -64,7 +64,7 @@ class RouterTest extends TestCase
         $this->assertCount(0, $this->router->getRoutes());
     }
 
-    public function testAddRouteWithName()
+    public function testAddRouteWithName(): void
     {
         $route = new Route('/foo/bar', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
         $numberOfRoutes = $this->router->getRoutes()->count();
@@ -77,7 +77,7 @@ class RouterTest extends TestCase
         $this->assertEquals('/foo/bar', $fetchedRoute->getPath());
     }
 
-    public function testAddRouteWithHttpMethods()
+    public function testAddRouteWithHttpMethods(): void
     {
         $route = new Route(
             '/foo/bar',
@@ -97,7 +97,7 @@ class RouterTest extends TestCase
         $this->assertCount(3, $methods);
     }
 
-    public function testRoute()
+    public function testRoute(): void
     {
         // Mock controller get
         $partiallyMockedRouter = $this->getMockBuilder(\Starlit\App\Router::class)
@@ -132,7 +132,7 @@ class RouterTest extends TestCase
         $this->router->route($request);
     }
 
-    public function testRouteInvalidAction()
+    public function testRouteInvalidAction(): void
     {
         // Mock controller get
         $partiallyMockedRouter = $this->getMockBuilder(\Starlit\App\Router::class)
@@ -154,25 +154,25 @@ class RouterTest extends TestCase
         $partiallyMockedRouter->route($request);
     }
 
-    public function testGetControllerClass()
+    public function testGetControllerClass(): void
     {
         $controllerClass = $this->router->getControllerClass('test');
         $this->assertEquals('\Controller\TestController', $controllerClass);
     }
 
-    public function testGetSeparatedControllerClass()
+    public function testGetSeparatedControllerClass(): void
     {
         $controllerClass = $this->router->getControllerClass('test-Two');
         $this->assertEquals('\Controller\TestTwoController', $controllerClass);
     }
 
-    public function testGetControllerClassWithModule()
+    public function testGetControllerClassWithModule(): void
     {
         $controllerClass = $this->router->getControllerClass('login', 'admin');
         $this->assertEquals('\Admin\Controller\LoginController', $controllerClass);
     }
 
-    public function testGetActionMethod()
+    public function testGetActionMethod(): void
     {
         $actionMethod = $this->router->getActionMethod('random');
         $this->assertEquals('randomAction', $actionMethod);
@@ -184,7 +184,7 @@ class RouterTest extends TestCase
 
 class RouterTestController extends AbstractController
 {
-    public function someOtherAction()
+    public function someOtherAction(): void
     {
     }
 }

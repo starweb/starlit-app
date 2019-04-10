@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -20,7 +20,7 @@ class MustacheTmplCapturer extends Capturer
      *
      * @return string
      */
-    public function getScript()
+    public function getScript(): string
     {
         return '<script type="text/x-mustache" id="' . $this->activeContentKey . '">' . "\n"
             . $this->getContent()

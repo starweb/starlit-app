@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -26,7 +26,7 @@ class StandardServiceProvider implements ServiceProviderInterface
     /**
      * @param BaseApp $app
      */
-    public function register(BaseApp $app)
+    public function register(BaseApp $app): void
     {
         $app->alias('sessionStorage', SessionStorageInterface::class);
         $app->set(SessionStorageInterface::class, function (BaseApp $app) {

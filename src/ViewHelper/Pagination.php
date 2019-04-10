@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -26,7 +26,7 @@ class Pagination extends AbstractViewHelper
      * @param array $options
      * @return string
      */
-    public function __invoke($currentPageNo, $rowsPerPage, $totalRowCount, array $options = [])
+    public function __invoke(int $currentPageNo, int $rowsPerPage, int $totalRowCount, array $options = []): string
     {
         if (!$this->view || !$this->view->getRequest()) {
             throw new \LogicException('View request is required for this view helper');

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Starlit\App;
 
@@ -21,67 +21,67 @@ class ConfigTest extends TestCase
      */
     private $config;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->config = new Config($this->testData);
     }
 
-    public function testHasIsTrue()
+    public function testHasIsTrue(): void
     {
         $this->assertTrue($this->config->has('someValue'));
         $this->assertTrue($this->config->has('someArray'));
     }
 
-    public function testHasIsFalse()
+    public function testHasIsFalse(): void
     {
         $this->assertFalse($this->config->has('someEmptyValue'));
         $this->assertFalse($this->config->has('someNonExistantValue'));
         $this->assertFalse($this->config->has('someEmptyArray'));
     }
 
-    public function testGetGivesValue()
+    public function testGetGivesValue(): void
     {
          $this->assertEquals($this->testData['someValue'], $this->config->get('someValue'));
     }
 
-    public function testGetGivesDefault()
+    public function testGetGivesDefault(): void
     {
         $this->assertEquals(456, $this->config->get('someEmptyValue', 456));
     }
 
-    public function testGetRequiredGivesValue()
+    public function testGetRequiredGivesValue(): void
     {
         $this->assertEquals($this->testData['someValue'], $this->config->getRequired('someValue'));
     }
 
-    public function testGetRequiredThrowsException()
+    public function testGetRequiredThrowsException(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->config->getRequired('someEmptyValue');
     }
 
-    public function testAllReturnsAll()
+    public function testAllReturnsAll(): void
     {
         $this->assertEquals($this->testData, $this->config->all());
     }
 
-    public function testOffsetExists()
+    public function testOffsetExists(): void
     {
         $this->assertTrue(isset($this->config['someValue']));
     }
 
-    public function testOffsetGet()
+    public function testOffsetGet(): void
     {
         $this->assertEquals($this->testData['someValue'], $this->config['someValue']);
     }
 
-    public function testOffsetSet()
+    public function testOffsetSet(): void
     {
         $this->expectException(\LogicException::class);
         $this->config['someValue'] = 789;
     }
 
-    public function testOffsetUnset()
+    public function testOffsetUnset(): void
     {
         $this->expectException(\LogicException::class);
         unset($this->config['someValue']);
