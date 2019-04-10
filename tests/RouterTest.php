@@ -17,21 +17,33 @@ class RouterTest extends TestCase
      */
     protected $mockApp;
 
+    /**
+     * @var AbstractController
+     */
+    private $testController;
+
     protected function setUp(): void
     {
         // Mock app
-        $this->mockApp = $this->createMock(\Starlit\App\BaseApp::class);
+        $this->mockApp = $this->createMock(BaseApp::class);
 
         // Mock app view (needed for controller instantiation)
-        $this->view = $this->createMock(\Starlit\App\View::class);
+        $this->view = $this->createMock(View::class);
         $this->mockApp->expects($this->any())
             ->method('getNew')
             ->with(ViewInterface::class)
             ->will($this->returnValue($this->view));
 
+        $requestMock = $this->createMock(Request::class);
         $this->router = new Router($this->mockApp, [
             'controllerNamespace' => 'Controller'
         ]);
+
+        $this->testController = (new class($this->mockApp, $requestMock) extends AbstractController {
+            public function someOtherAction(): void
+            {
+            }
+        });
     }
 
     public function testConstructAndOptions(): void
@@ -106,7 +118,7 @@ class RouterTest extends TestCase
             ->getMock();
         $partiallyMockedRouter->expects($this->once())
             ->method('getControllerClass')
-            ->will($this->returnValue(\Starlit\App\RouterTestController::class));
+            ->will($this->returnValue(\get_class($this->testController)));
 
         // Set routes
         $route = new Route('/{controller}/{action}', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
@@ -116,7 +128,7 @@ class RouterTest extends TestCase
         $request = Request::create('/index/some-other');
         $controller = $partiallyMockedRouter->route($request);
 
-        $this->assertInstanceOf(\Starlit\App\RouterTestController::class, $controller);
+        $this->assertInstanceOf(\get_class($this->testController), $controller);
     }
 
     public function testRouteInvalidController()
@@ -141,7 +153,7 @@ class RouterTest extends TestCase
             ->getMock();
         $partiallyMockedRouter->expects($this->once())
             ->method('getControllerClass')
-            ->will($this->returnValue(\Starlit\App\RouterTestController::class));
+            ->will($this->returnValue(\get_class($this->testController)));
 
         // Set routes
         $route = new Route('/{controller}/{action}', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
@@ -179,12 +191,5 @@ class RouterTest extends TestCase
 
         $actionMethod = $this->router->getActionMethod('other-random');
         $this->assertEquals('otherRandomAction', $actionMethod);
-    }
-}
-
-class RouterTestController extends AbstractController
-{
-    public function someOtherAction(): void
-    {
     }
 }
