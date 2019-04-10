@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
+
 namespace Starlit\App\ViewHelper;
 
 use PHPUnit\Framework\TestCase;
 
-/**
- */
 class MustacheTmplCapturerTest extends TestCase
 {
     /**
@@ -33,5 +32,4 @@ class MustacheTmplCapturerTest extends TestCase
         $this->assertContains('teeest', $helper->getScript());
         $this->assertContains('</script>', $helper->getScript());
     }
-    
 }

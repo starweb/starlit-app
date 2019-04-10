@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Starlit\App;
 
 use PHPUnit\Framework\TestCase;
@@ -24,10 +25,8 @@ class RouterTest extends TestCase
 
     protected function setUp(): void
     {
-        // Mock app
         $this->mockApp = $this->createMock(BaseApp::class);
 
-        // Mock app view (needed for controller instantiation)
         $this->view = $this->createMock(View::class);
         $this->mockApp->expects($this->any())
             ->method('getNew')
@@ -111,7 +110,6 @@ class RouterTest extends TestCase
 
     public function testRoute(): void
     {
-        // Mock controller get
         $partiallyMockedRouter = $this->getMockBuilder(\Starlit\App\Router::class)
             ->setMethods(['getControllerClass'])
             ->setConstructorArgs([$this->mockApp])
@@ -120,11 +118,9 @@ class RouterTest extends TestCase
             ->method('getControllerClass')
             ->will($this->returnValue(\get_class($this->testController)));
 
-        // Set routes
         $route = new Route('/{controller}/{action}', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
         $partiallyMockedRouter->addRoute($route);
 
-        // Route request
         $request = Request::create('/index/some-other');
         $controller = $partiallyMockedRouter->route($request);
 
@@ -133,11 +129,9 @@ class RouterTest extends TestCase
 
     public function testRouteInvalidController()
     {
-        // Set routes
         $route = new Route('/{controller}/{action}', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
         $this->router->addRoute($route);
 
-        // Route request
         $request = Request::create('/index/some-other');
 
         $this->expectException(\Symfony\Component\Routing\Exception\ResourceNotFoundException::class);
@@ -146,7 +140,6 @@ class RouterTest extends TestCase
 
     public function testRouteInvalidAction(): void
     {
-        // Mock controller get
         $partiallyMockedRouter = $this->getMockBuilder(\Starlit\App\Router::class)
             ->setMethods(['getControllerClass'])
             ->setConstructorArgs([$this->mockApp])
@@ -155,11 +148,9 @@ class RouterTest extends TestCase
             ->method('getControllerClass')
             ->will($this->returnValue(\get_class($this->testController)));
 
-        // Set routes
         $route = new Route('/{controller}/{action}', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']);
         $partiallyMockedRouter->addRoute($route);
 
-        // Route request
         $request = Request::create('/index/some-other-other');
 
         $this->expectException(\Symfony\Component\Routing\Exception\ResourceNotFoundException::class);

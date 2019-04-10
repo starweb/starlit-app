@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Starlit\App;
 
 use PHPUnit\Framework\TestCase;
@@ -15,7 +16,15 @@ class BaseAppTest extends TestCase
      */
     protected $app;
 
-    protected $fakeConfig = ['testkey' => 'testval', 'phpSettings' => ['max_execution_time' => '5001', 'date' => ['timezone' => 'Africa/Kinshasa']]];
+    protected $fakeConfig = [
+        'testkey' => 'testval',
+        'phpSettings' => [
+            'max_execution_time' => '5001',
+            'date'               => [
+                'timezone' => 'Africa/Kinshasa',
+            ],
+        ],
+    ];
 
     protected $fakeEnv = 'blubb';
 
@@ -116,7 +125,8 @@ class BaseAppTest extends TestCase
     public function testHandlePreHandleResponse(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-        $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp {
+        $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp
+        {
             protected function preHandle(Request $request): ?Response
             {
                 return new Response('Pre handle response');

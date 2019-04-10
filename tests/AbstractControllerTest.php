@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Starlit\App;
 
 use PHPUnit\Framework\TestCase;
@@ -114,7 +115,6 @@ class AbstractControllerTest extends TestCase
 
     public function testDispatch(): void
     {
-        // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->method('getActionMethod')
             ->with('index')
@@ -122,7 +122,6 @@ class AbstractControllerTest extends TestCase
         $this->mockRouter->method('getRequestController')
             ->willReturn('test');
 
-        // mock View::render return
         $this->mockView->expects($this->atLeastOnce())
             ->method('render')
             ->with('test/index')
@@ -135,7 +134,6 @@ class AbstractControllerTest extends TestCase
 
     public function testDispatchPreDispatch(): void
     {
-        // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->method('getActionMethod')
             ->with('pre-test')
@@ -147,14 +145,12 @@ class AbstractControllerTest extends TestCase
 
     public function testDispatchSpecifiedWithResponseAndParamAction(): void
     {
-        // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('some-other')
             ->will($this->returnValue('someOtherAction'));
 
-        // mock request-attributes has
         $this->mockRequest->attributes->expects($this->once())
             ->method('all')
             ->will($this->returnValue(['someParam' => 'ooh']));
@@ -165,14 +161,12 @@ class AbstractControllerTest extends TestCase
 
     public function testDispatchWithoutReqParam(): void
     {
-        // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('some-other')
             ->will($this->returnValue('someOtherAction'));
 
-        // mock request-attributes has
         $this->mockRequest->attributes->expects($this->once())
             ->method('all')
             ->will($this->returnValue(['someParam' => 'ooh']));
@@ -183,7 +177,6 @@ class AbstractControllerTest extends TestCase
 
     public function testDispatchNonExistingAction(): void
     {
-        // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
             ->method('getActionMethod')
@@ -196,7 +189,6 @@ class AbstractControllerTest extends TestCase
 
     public function testDispatchInvalidAction(): void
     {
-        // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
             ->method('getActionMethod')
@@ -209,7 +201,6 @@ class AbstractControllerTest extends TestCase
 
     public function testDispatchNoAutoAction(): void
     {
-        // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
             ->method('getActionMethod')
@@ -222,7 +213,6 @@ class AbstractControllerTest extends TestCase
 
     public function testDispatchStringReturn(): void
     {
-        // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
             ->method('getActionMethod')
@@ -235,7 +225,6 @@ class AbstractControllerTest extends TestCase
 
     public function testForwardInternal(): void
     {
-        // mock Router::getActionMethod return
         $this->mockRouter = $this->createMock(Router::class);
         $this->mockRouter->expects($this->once())
             ->method('getActionMethod')
@@ -267,7 +256,6 @@ class AbstractControllerTest extends TestCase
             ->with('forward-end')
             ->will($this->returnValue('forwardEndAction'));
 
-        // Gain access to protected forward method
         $rObject = new \ReflectionObject($this->testController);
         $method = $rObject->getMethod('forward');
         $method->setAccessible(true);
@@ -288,8 +276,6 @@ class AbstractControllerTest extends TestCase
             ->with('forward-end')
             ->will($this->returnValue('forwardEndAction'));
 
-
-        // Gain access to protected forward method
         $rObject = new \ReflectionObject($this->testController);
         $method = $rObject->getMethod('forward');
         $method->setAccessible(true);
@@ -330,7 +316,10 @@ class AbstractControllerTest extends TestCase
         $method = $rObject->getMethod('getUrl');
         $method->setAccessible(true);
 
-        $this->assertEquals('http://www.example.org/hej/hopp?a=1&b=2', $method->invokeArgs($this->testController, ['/hej/hopp', ['b' => '2']]));
+        $this->assertEquals(
+            'http://www.example.org/hej/hopp?a=1&b=2',
+            $method->invokeArgs($this->testController, ['/hej/hopp', ['b' => '2']])
+        );
     }
 
     public function testGet(): void
