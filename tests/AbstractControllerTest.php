@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\ServerBag;
 class AbstractControllerTest extends TestCase
 {
     /**
-     * @var TestController
+     * @var AbstractController
      */
     protected $testController;
 
@@ -78,7 +78,7 @@ class AbstractControllerTest extends TestCase
                 }
             );
 
-        $this->testController = new TestController($this->mockApp, $this->mockRequest);
+        $this->testController = $this->getTestController();
     }
 
     public function testConstruct(): void
@@ -261,7 +261,7 @@ class AbstractControllerTest extends TestCase
         $this->mockRouter->expects($this->once())
             ->method('getControllerClass')
             ->with('login')
-            ->will($this->returnValue(TestController::class));
+            ->will($this->returnValue(\get_class($this->testController)));
         $this->mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('forward-end')
@@ -282,7 +282,7 @@ class AbstractControllerTest extends TestCase
         $this->mockRouter->expects($this->once())
             ->method('getControllerClass')
             ->with('login', 'admin')
-            ->will($this->returnValue(TestController::class));
+            ->will($this->returnValue(\get_class($this->testController)));
         $this->mockRouter->expects($this->once())
             ->method('getActionMethod')
             ->with('forward-end')
@@ -372,48 +372,48 @@ class AbstractControllerTest extends TestCase
         $this->assertEquals($get, $method->invokeArgs($this->testController, []));
         $this->assertEquals($get['a'], $method->invokeArgs($this->testController, ['a']));
     }
-}
 
-class TestController extends AbstractController
-{
-
-    public function indexAction(): void
+    protected function getTestController(): AbstractController
     {
+        return (new class($this->mockApp, $this->mockRequest) extends AbstractController {
+            public function indexAction(): void
+            {
+            }
+
+            public function someOtherAction($someParam, $otherParam, $paramWithDefault = 'wow'): Response
+            {
+                return new Response($someParam . ' ' . $otherParam . ' ' . $paramWithDefault);
+            }
+
+            protected function invalidAction(): void
+            {
+            }
+
+            public function noAutoAction(): void
+            {
+                $this->setAutoRenderView(false);
+            }
+
+            public function forwardEndAction(): Response
+            {
+                return new Response('eeend');
+            }
+
+            public function preTestAction() { }
+
+            protected function preDispatch($action): ?Response
+            {
+                if ($action === 'pre-test') {
+                    return new Response('preOk');
+                }
+
+                return parent::preDispatch($action); // For code coverage...
+            }
+
+            public function stringReturnAction(): string
+            {
+                return 'a string';
+            }
+        });
     }
-
-    public function someOtherAction($someParam, $otherParam, $paramWithDefault = 'wow'): Response
-    {
-        return new Response($someParam . ' ' . $otherParam . ' ' . $paramWithDefault);
-    }
-
-    protected function invalidAction(): void
-    {
-    }
-
-    public function noAutoAction(): void
-    {
-        $this->setAutoRenderView(false);
-    }
-
-    public function forwardEndAction(): Response
-    {
-        return new Response('eeend');
-    }
-
-    public function preTestAction() { }
-
-    protected function preDispatch($action): ?Response
-    {
-        if ($action === 'pre-test') {
-            return new Response('preOk');
-        }
-
-        return parent::preDispatch($action); // For code coverage...
-    }
-
-    public function stringReturnAction(): string
-    {
-        return 'a string';
-    }
-
 }
