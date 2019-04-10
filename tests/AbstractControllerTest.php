@@ -390,7 +390,7 @@ class AbstractControllerTest extends TestCase
 
             public function preTestAction() { }
 
-            protected function preDispatch($action): ?Response
+            protected function preDispatch(string $action): ?Response
             {
                 if ($action === 'pre-test') {
                     return new Response('preOk');
