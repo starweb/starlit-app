@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - strict type declarations to all classes (including tests)
 - type hinting for method parameters and return types
 - contracts for Router and View classes
+- php7.3 to travis config
 
 ### Changed
 - added support for reflection based dependency injection 
