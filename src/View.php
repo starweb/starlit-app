@@ -16,11 +16,6 @@ use Starlit\App\ViewHelper\Url;
 use Symfony\Component\HttpFoundation\Request;
 use Starlit\App\ViewHelper\AbstractViewHelper;
 
-/**
- * Class for rendering view content.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class View implements ViewInterface
 {
     /**
@@ -71,17 +66,11 @@ class View implements ViewInterface
      */
     private $request;
 
-    /**
-     * Constructor.
-     */
     public function __construct(array $options = [])
     {
         $this->setOptions($options);
     }
 
-    /**
-     * Set options.
-     */
     public function setOptions(array $options): void
     {
         if (isset($options['scriptRootPath'])) {

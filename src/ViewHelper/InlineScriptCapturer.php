@@ -8,16 +8,8 @@
 
 namespace Starlit\App\ViewHelper;
 
-/**
- * Inline JavaScript capture view helper.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class InlineScriptCapturer extends Capturer
 {
-    /**
-     * End capturing (overridden).
-     */
     public function end(): AbstractViewHelper
     {
         // Get the captured contents and end this output buffer

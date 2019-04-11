@@ -5,7 +5,6 @@
     "keywords": ["framework", "mvc"],
     "homepage": "http://github.com/starweb/starlit-app",
     "license": "BSD-3-Clause",
-    "version": "1.0.x-dev",
     "authors": [
         {
             "name": "Starweb AB"
@@ -14,7 +13,7 @@
     "require": {
         "php": ">=7.1.0",
         "psr/container": "^1.0",
-        "starlit/utils": "~0.1",
+        "starlit/utils": "^1.1",
         "symfony/http-foundation": "^4.0",
         "symfony/routing": "^4.0",
         "filp/whoops": "^2.0",

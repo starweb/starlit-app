@@ -16,11 +16,6 @@ use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Starlit\Utils\Str;
 
-/**
- * Class for routing URL request to controllers.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class Router implements RouterInterface
 {
     /**
@@ -63,12 +58,6 @@ class Router implements RouterInterface
      */
     protected $actionMethodSuffix = 'Action';
 
-    /**
-     * Constructor.
-     *
-     * @param BaseApp $app
-     * @param array   $options
-     */
     public function __construct(BaseApp $app, array $options = [])
     {
         $this->app = $app;
@@ -82,9 +71,6 @@ class Router implements RouterInterface
         $this->addRoute(new Route('/{controller}/{action}', [], ['controller' => '[a-z-]+', 'action' => '[a-z-]+']));
     }
 
-    /**
-     * @param array $options
-     */
     public function setOptions(array $options): void
     {
         if (isset($options['controllerNamespace'])) {
@@ -110,10 +96,6 @@ class Router implements RouterInterface
         }
     }
 
-    /**
-     * @param string $name
-     * @param array $routeConfig
-     */
     private function addRouteFromConfig(string $name, array $routeConfig): void
     {
         if (\array_key_exists('path', $routeConfig)) {
@@ -128,36 +110,21 @@ class Router implements RouterInterface
         $this->addRoute(new Route($path, $defaults, $requirements, [], '', [], $methods), $name);
     }
 
-    /**
-     * @return string
-     */
     public function getDefaultModule(): string
     {
         return $this->defaultModule;
     }
 
-    /**
-     * @return string
-     */
     public function getDefaultController(): string
     {
         return $this->defaultController;
     }
 
-    /**
-     * @return string
-     */
     public function getDefaultAction(): string
     {
         return $this->defaultAction;
     }
 
-    /**
-     * Add route.
-     *
-     * @param Route $route
-     * @param string|null $name
-     */
     public function addRoute(Route $route, string $name = null): void
     {
         if ($name === null) {
@@ -166,9 +133,6 @@ class Router implements RouterInterface
         $this->routes->add($name, $route);
     }
 
-    /**
-     * Clear any added routes.
-     */
     public function clearRoutes(): void
     {
         $this->routes = new RouteCollection();
@@ -251,28 +215,16 @@ class Router implements RouterInterface
         return Str::separatorToCamel($action, '-') . $this->actionMethodSuffix;
     }
 
-    /**
-     * @param Request $request
-     * @return string|null
-     */
     public function getRequestModule(Request $request): ?string
     {
         return $request->attributes->get('module', $this->defaultModule);
     }
 
-    /**
-     * @param Request $request
-     * @return string
-     */
     public function getRequestController(Request $request): string
     {
         return $request->attributes->get('controller', $this->defaultController);
     }
 
-    /**
-     * @param Request $request
-     * @return string
-     */
     public function getRequestAction(Request $request): string
     {
         return $request->attributes->get('action', $this->defaultAction);

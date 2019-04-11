@@ -14,11 +14,6 @@ use Symfony\Component\Routing;
 use Starlit\Utils\Str;
 use Starlit\Utils\Url;
 
-/**
- * Base action controller.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 abstract class AbstractController
 {
     /**
@@ -46,12 +41,6 @@ abstract class AbstractController
      */
     protected $autoRenderViewScript;
 
-    /**
-     * Constructor.
-     *
-     * @param BaseApp $app
-     * @param Request $request
-     */
     final public function __construct(BaseApp $app, Request $request)
     {
         $this->app = $app;
@@ -85,17 +74,11 @@ abstract class AbstractController
         return null;
     }
 
-    /**
-     * @param bool $autoRenderView
-     */
     public function setAutoRenderView(bool $autoRenderView): void
     {
         $this->autoRenderView = $autoRenderView;
     }
 
-    /**
-     * @param string $autoRenderViewScript
-     */
     public function setAutoRenderViewScript(string $autoRenderViewScript): void
     {
         $this->autoRenderViewScript = $autoRenderViewScript;
@@ -135,9 +118,6 @@ abstract class AbstractController
     }
 
     /**
-     * @param string $actionMethod
-     * @param array $actionArgs
-     * @return array
      * @throws Routing\Exception\ResourceNotFoundException
      */
     protected function getCollectedDispatchArgs(string $actionMethod, array $actionArgs = []): array
@@ -193,12 +173,6 @@ abstract class AbstractController
         }
     }
 
-    /**
-     * @param string      $action
-     * @param string      $controller
-     * @param string|null $module
-     * @return string
-     */
     public function getAutoRenderViewScriptName(string $action, string $controller, $module = null): string
     {
         $viewScriptName = \implode('/', \array_filter([$module, $controller, $action]));

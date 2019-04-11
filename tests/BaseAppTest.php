@@ -19,7 +19,7 @@ class BaseAppTest extends TestCase
     protected $fakeConfig = [
         'testkey' => 'testval',
         'phpSettings' => [
-            'max_execution_time' => '5001',
+            'display_errors' => '0',
             'date'               => [
                 'timezone' => 'Africa/Kinshasa',
             ],
@@ -44,7 +44,8 @@ class BaseAppTest extends TestCase
         $this->assertInstanceOf(ViewInterface::class, $this->app->get(ViewInterface::class));
 
         $this->assertEquals($this->fakeConfig['testkey'], $this->app->getConfig()->get('testkey'));
-        $this->assertEquals($this->fakeConfig['phpSettings']['max_execution_time'], ini_get('max_execution_time'));
+        $this->assertEquals($this->fakeConfig['phpSettings']['display_errors'], ini_get('display_errors')
+        );
         $this->assertEquals($this->fakeConfig['phpSettings']['date']['timezone'], ini_get('date.timezone'));
 
         // test setup default routes

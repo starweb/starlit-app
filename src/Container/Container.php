@@ -10,11 +10,6 @@ namespace Starlit\App\Container;
 
 use Psr\Container\ContainerInterface;
 
-/**
- * Dependency injection container.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class Container implements ContainerInterface
 {
     /**
@@ -39,9 +34,9 @@ class Container implements ContainerInterface
      *
      * @param string $key
      * @param mixed  $value
-     * @return Container
+     * @return ContainerInterface
      */
-    public function set(string $key, $value): self
+    public function set(string $key, $value): ContainerInterface
     {
         if (!(\is_string($value) || \is_object($value))) {
             throw new \InvalidArgumentException('Value must be a class name, an object instance, or a callable');
@@ -61,7 +56,7 @@ class Container implements ContainerInterface
         );
     }
 
-    public function alias(string $alias, string $key): self
+    public function alias(string $alias, string $key): ContainerInterface
     {
         $this->aliases[$alias] = $key;
 
@@ -85,10 +80,6 @@ class Container implements ContainerInterface
         return isset($this->dicValues[$key]);
     }
 
-    /**
-     * @param string $key
-     * @return bool
-     */
     public function hasInstance(string $key): bool
     {
         if (isset($this->aliases[$key])) {
@@ -169,7 +160,7 @@ class Container implements ContainerInterface
      *
      * @param string $key
      */
-    public function destroyInstance($key): void
+    public function destroyInstance(string $key): void
     {
         if (isset($this->aliases[$key])) {
             $key = $this->aliases[$key];
@@ -178,11 +169,6 @@ class Container implements ContainerInterface
         unset($this->dicObjects[$key]);
     }
 
-    /**
-     * Destroy all DIC object instances.
-     *
-     * Will force new objects to be created on next call.
-     */
     public function destroyAllInstances(): void
     {
         $this->dicObjects = [];
