@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 ### Added
+- support for reflection based dependency injection 
+- resolve controller actions via container
 - CHANGELOG.md
 - strict type declarations to all classes (including tests)
 - type hinting for method parameters and return types
@@ -14,11 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - php7.3 to travis config
 
 ### Changed
-- added support for reflection based dependency injection 
-- resolve controller actions via container
 - updated phpunit package and tests
 
-### Deleted
+### Removed
 - version from composer.json
 
 ## [0.5.0] - 2018-09-18
