@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
+
 namespace Starlit\App\ViewHelper;
 
 use PHPUnit\Framework\TestCase;
 
-/**
- */
 class CapturerTest extends TestCase
 {
     /**

@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
+
 namespace Starlit\App\ViewHelper;
 
 use PHPUnit\Framework\TestCase;
+use Starlit\App\View;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Request;
 
-/**
- */
 class UrlTest extends TestCase
 {
     /**
@@ -16,8 +18,8 @@ class UrlTest extends TestCase
     {
         $this->urlHelper = new Url();
 
-        $request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-        $request->query = $this->createMock(\Symfony\Component\HttpFoundation\ParameterBag::class);
+        $request = $this->createMock(Request::class);
+        $request->query = $this->createMock(ParameterBag::class);
         $request->query->expects($this->any())
             ->method('all')
             ->will($this->returnValue([]));
@@ -26,10 +28,10 @@ class UrlTest extends TestCase
             ->method('getRequestUri')
             ->will($this->returnValue('/hej/hopp'));
 
-        $view = $this->createPartialMock(\Starlit\App\View::class, ['getRequest']);
+        $view = $this->createPartialMock(View::class, ['getRequest']);
         $view->expects($this->any())
             ->method('getRequest')
-            ->will($this->returnValue($request));
+            ->willReturn($request);
 
         $this->urlHelper->setView($view);
     }

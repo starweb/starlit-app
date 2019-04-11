@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Starlit\App;
 
 use PHPUnit\Framework\TestCase;
@@ -15,7 +16,15 @@ class BaseAppTest extends TestCase
      */
     protected $app;
 
-    protected $fakeConfig = ['testkey' => 'testval', 'phpSettings' => ['max_execution_time' => '5001', 'date' => ['timezone' => 'Africa/Kinshasa']]];
+    protected $fakeConfig = [
+        'testkey' => 'testval',
+        'phpSettings' => [
+            'max_execution_time' => '5001',
+            'date'               => [
+                'timezone' => 'Africa/Kinshasa',
+            ],
+        ],
+    ];
 
     protected $fakeEnv = 'blubb';
 
@@ -56,6 +65,21 @@ class BaseAppTest extends TestCase
             ->with($this->app);
 
         $this->app->register($mockProvider);
+        $this->app->boot();
+    }
+
+    public function testBootCalledTwice(): void
+    {
+        $mockProvider = $this->createMock(BootableServiceProviderInterface::class);
+        $mockProvider->expects($this->once())
+            ->method('register')
+            ->with($this->app);
+        $mockProvider->expects($this->once())
+            ->method('boot')
+            ->with($this->app);
+
+        $this->app->register($mockProvider);
+        $this->app->boot();
         $this->app->boot();
     }
 
@@ -101,8 +125,12 @@ class BaseAppTest extends TestCase
     public function testHandlePreHandleResponse(): void
     {
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-
-        $mockBaseApp = new TestBaseAppWithPreHandleResponse($this->fakeConfig, $this->fakeEnv);
+        $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp {
+            protected function preHandle(Request $request): ?Response
+            {
+                return new Response('Pre handle response');
+            }
+        });
         $response = $mockBaseApp->handle($mockRequest);
 
         $this->assertEquals('Pre handle response', $response->getContent());
@@ -113,8 +141,12 @@ class BaseAppTest extends TestCase
         $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $mockRouter = $this->createMock(Router::class);
         $mockController = $this->createMock(\Starlit\App\AbstractController::class);
-
-        $mockBaseApp = new TestBaseAppWithPostRouteResponse($this->fakeConfig, $this->fakeEnv);
+        $mockBaseApp = (new class($this->fakeConfig, $this->fakeEnv) extends BaseApp {
+            protected function postRoute(Request $request): ?Response
+            {
+                return new Response('Post route response');
+            }
+        });
 
         $mockRouter->expects($this->once())
             ->method('route')
@@ -240,26 +272,11 @@ class BaseAppTest extends TestCase
         $mockRequest = $this->createMock(Request::class);
         $this->app->set(Request::class, $mockRequest);
 
-        $this->assertSame($mockRequest, $this->app->get(Request::class));
+        $this->assertSame($mockRequest, $this->app->getRequest());
     }
 
     public function testHasNoRequest(): void
     {
         $this->assertFalse($this->app->has(Request::class));
-    }
-}
-
-class TestBaseAppWithPreHandleResponse extends BaseApp
-{
-    protected function preHandle(Request $request): ?Response
-    {
-        return new Response('Pre handle response');
-    }
-}
-class TestBaseAppWithPostRouteResponse extends BaseApp
-{
-    protected function postRoute(Request $request): ?Response
-    {
-        return new Response('Post route response');
     }
 }

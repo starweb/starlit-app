@@ -119,7 +119,7 @@ class Container implements ContainerInterface
                 $instance = $this->resolveInstance($key);
             }
         } catch (\ReflectionException $e) {
-            throw new NotFoundException(sprintf('Key "%s" could not be resolved. ', $key));
+            throw new NotFoundException(sprintf('Key "%s" could not be resolved.', $key));
         }
 
         $this->dicObjects[$key] = $instance;
@@ -273,7 +273,11 @@ class Container implements ContainerInterface
                         $values[] = $this->get($parameterClass->getName());
                     }
                     catch (NotFoundException $e) { // We're probably dealing with an unmapped interface here
-                        $values[] = $parameter->getDefaultValue();
+                        if ($parameter->isOptional()) {
+                            $values[] = $parameter->getDefaultValue();
+                        } else {
+                            throw $e;
+                        }
                     }
                 } else {
                     $values[] = $parameter->getDefaultValue();
