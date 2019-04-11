@@ -40,9 +40,6 @@ class Capturer extends AbstractViewHelper
         \ob_start();
     }
 
-    /**
-     * @throws \LogicException
-     */
     public function end(): AbstractViewHelper
     {
         if (empty($this->activeContentKey)) {
@@ -55,9 +52,6 @@ class Capturer extends AbstractViewHelper
         return $this;
     }
 
-    /**
-     * @throws \LogicException
-     */
     public function getContent(): string
     {
         if (empty($this->activeContentKey)) {
