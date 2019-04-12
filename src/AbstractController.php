@@ -173,7 +173,7 @@ abstract class AbstractController
         }
     }
 
-    public function getAutoRenderViewScriptName(string $action, string $controller, $module = null): string
+    public function getAutoRenderViewScriptName(string $action, string $controller, string $module = null): string
     {
         $viewScriptName = \implode('/', \array_filter([$module, $controller, $action]));
 
