@@ -270,7 +270,7 @@ abstract class AbstractController
      * @param mixed  $default
      * @return string|array
      */
-    protected function post(string $key = null, string $default = null)
+    protected function post(string $key = null, $default = null)
     {
         if ($key === null) {
             return $this->request->request->all();
