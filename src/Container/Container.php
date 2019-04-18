@@ -252,7 +252,7 @@ class Container implements ContainerInterface
          */
         foreach ($parameters as $parameter) {
             if (\array_key_exists($parameter->getName(), $predefinedValues)) {
-                if ($parameter->getType()->isBuiltin()) {
+                if ($parameter->hasType() && $parameter->getType()->isBuiltin()) {
                     \settype($predefinedValues[$parameter->getName()], $parameter->getType()->getName());
                 }
                 $values[] = $predefinedValues[$parameter->getName()];
