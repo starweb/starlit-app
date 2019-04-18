@@ -413,7 +413,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(\stdClass::class, $resolved[0]);
     }
 
-    public function testResolveParametersWithPredefinedValue(): void
+    public function testResolveParametersWithPredefinedClassValue(): void
     {
         $class = (new class() extends \stdClass {
             public function foo(\stdClass $stdClass): void
@@ -426,6 +426,124 @@ class ContainerTest extends TestCase
 
         $resolved = $this->container->resolveParameters($parameters, [\stdClass::class => 'foo']);
         $this->assertSame('foo', $resolved[0]);
+    }
+
+    public function testResolveParametersWithPredefinedValueWithoutType(): void
+    {
+        $class = (new class() extends \stdClass {
+            public function foo(\stdClass $stdClass, $withoutType): void
+            {
+            }
+        });
+        $reflected = new \ReflectionClass($class);
+        $function = $reflected->getMethod('foo');
+        $parameters = $function->getParameters();
+
+        $resolved = $this->container->resolveParameters($parameters, ['withoutType' => 'foo']);
+        $this->assertInstanceOf(\stdClass::class, $resolved[0]);
+        $this->assertSame('foo', $resolved[1]);
+    }
+
+    public function testResolveParametersWithPredefinedValueWithIntTypePassedAsStringStartingWithNumber(): void
+    {
+        $class = (new class() extends \stdClass {
+            public function foo(\stdClass $stdClass, int $int): void
+            {
+            }
+        });
+        $reflected = new \ReflectionClass($class);
+        $function = $reflected->getMethod('foo');
+        $parameters = $function->getParameters();
+
+        $resolved = $this->container->resolveParameters($parameters, ['int' => '123 and a string']);
+        $this->assertInstanceOf(\stdClass::class, $resolved[0]);
+        $this->assertIsInt($resolved[1]);
+        $this->assertSame(123, $resolved[1]);
+    }
+
+    public function testResolveParametersWithPredefinedValueWithIntTypePassedAsString(): void
+    {
+        $class = (new class() extends \stdClass {
+            public function foo(\stdClass $stdClass, int $int): void
+            {
+            }
+        });
+        $reflected = new \ReflectionClass($class);
+        $function = $reflected->getMethod('foo');
+        $parameters = $function->getParameters();
+
+        $resolved = $this->container->resolveParameters($parameters, ['int' => 'a string']);
+        $this->assertInstanceOf(\stdClass::class, $resolved[0]);
+        $this->assertIsInt($resolved[1]);
+        $this->assertSame(0, $resolved[1]);
+    }
+
+    public function testResolveParametersWithPredefinedValueWithArrayTypePassedAsString(): void
+    {
+        $class = (new class() extends \stdClass {
+            public function foo(\stdClass $stdClass, array $array): void
+            {
+            }
+        });
+        $reflected = new \ReflectionClass($class);
+        $function = $reflected->getMethod('foo');
+        $parameters = $function->getParameters();
+
+        $resolved = $this->container->resolveParameters($parameters, ['array' => 'a string']);
+        $this->assertInstanceOf(\stdClass::class, $resolved[0]);
+        $this->assertIsArray($resolved[1]);
+        $this->assertSame(['a string'], $resolved[1]);
+    }
+
+    public function testResolveParametersWithPredefinedValueWithArrayTypePassedAsObject(): void
+    {
+        $class = (new class() extends \stdClass {
+            public function foo(\stdClass $stdClass, array $array): void
+            {
+            }
+        });
+        $reflected = new \ReflectionClass($class);
+        $function = $reflected->getMethod('foo');
+        $parameters = $function->getParameters();
+
+        $resolved = $this->container->resolveParameters($parameters, ['array' => new \stdClass()]);
+        $this->assertInstanceOf(\stdClass::class, $resolved[0]);
+        $this->assertIsArray($resolved[1]);
+        $this->assertSame([], $resolved[1]);
+    }
+
+    public function testResolveParametersWithPredefinedValueWithArrayTypePassedAsArray(): void
+    {
+        $class = (new class() extends \stdClass {
+            public function foo(\stdClass $stdClass, array $array): void
+            {
+            }
+        });
+        $reflected = new \ReflectionClass($class);
+        $function = $reflected->getMethod('foo');
+        $parameters = $function->getParameters();
+
+        $resolved = $this->container->resolveParameters($parameters, ['array' => ['foo' => 'bar']]);
+        $this->assertInstanceOf(\stdClass::class, $resolved[0]);
+        $this->assertIsArray($resolved[1]);
+        $this->assertSame(['foo' => 'bar'], $resolved[1]);
+    }
+
+    public function testResolveParametersWithPredefinedValueWithFloatType(): void
+    {
+        $class = (new class() extends \stdClass {
+            public function foo(\stdClass $stdClass, float $float): void
+            {
+            }
+        });
+        $reflected = new \ReflectionClass($class);
+        $function = $reflected->getMethod('foo');
+        $parameters = $function->getParameters();
+
+        $resolved = $this->container->resolveParameters($parameters, ['float' => 20]);
+        $this->assertInstanceOf(\stdClass::class, $resolved[0]);
+        $this->assertIsFloat($resolved[1]);
+        $this->assertSame(20.0, $resolved[1]);
     }
 
     public function testResolveParametersWithDefaultValue(): void
