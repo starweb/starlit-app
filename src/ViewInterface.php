@@ -26,7 +26,7 @@ interface ViewInterface
      * @param bool   $renderLayout
      * @return string
      */
-    public function render(string $script, bool $renderLayout = false): string ;
+    public function render(string $script, bool $renderLayout = false): string;
 
     public function layoutContent(): string;
 
