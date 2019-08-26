@@ -176,11 +176,11 @@ class View implements ViewInterface
      */
     public function getEscaped(string $name): string
     {
-        if (!isset($this->variables[$name])) {
+        if (empty($this->variables[$name])) {
             return '';
         }
 
-        return $this->escape($this->variables[$name]);
+        return $this->escape((string) $this->variables[$name]);
     }
 
     public function addHelperClass(string $helperName, string $className): void
