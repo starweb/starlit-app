@@ -1,11 +1,12 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Starlit\App\ViewHelper;
 
-/**
- */
-class InlineScriptCapturerTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class InlineScriptCapturerTest extends TestCase
 {
-    public function testEnd()
+    public function testEnd(): void
     {
         $helper = new InlineScriptCapturer();
         $view = new \Starlit\App\View();
@@ -18,5 +19,4 @@ class InlineScriptCapturerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('qteeest', $view->inlineJs);
     }
-
 }

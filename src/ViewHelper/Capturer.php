@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -8,11 +8,6 @@
 
 namespace Starlit\App\ViewHelper;
 
-/**
- * View helper to Capturing output content like inline javascript etc.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class Capturer extends AbstractViewHelper
 {
     /**
@@ -25,13 +20,7 @@ class Capturer extends AbstractViewHelper
      */
     protected $activeContentKey;
 
-    /**
-     * Magic method called when object is called as a function.
-     *
-     * @param string $contentKey
-     * @return Capturer
-     */
-    public function __invoke($contentKey = null)
+    public function __invoke(string $contentKey = null): AbstractViewHelper
     {
         if ($contentKey !== null) {
             $this->activeContentKey = $contentKey;
@@ -40,46 +29,30 @@ class Capturer extends AbstractViewHelper
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getContentKey()
+    public function getContentKey(): string
     {
         return $this->activeContentKey;
     }
 
-    /**
-     * Start capturing.
-     */
-    public function start()
+    public function start(): void
     {
         // Start capturing
-        ob_start();
+        \ob_start();
     }
 
-    /**
-     * End capturing.
-     *
-     * @return Capturer
-     */
-    public function end()
+    public function end(): AbstractViewHelper
     {
         if (empty($this->activeContentKey)) {
             throw new \LogicException('Specify view helper Capturer\'s content key for ending capture');
         }
 
         // Get the captured contents and end this output buffer
-        $this->capturedContent[$this->activeContentKey] = ob_get_clean();
+        $this->capturedContent[$this->activeContentKey] = \ob_get_clean();
 
         return $this;
     }
 
-    /**
-     * Get captured content.
-     *
-     * @return string
-     */
-    public function getContent()
+    public function getContent(): string
     {
         if (empty($this->activeContentKey)) {
             throw new \LogicException('Specify view helper Capturer\'s content key for getting content');

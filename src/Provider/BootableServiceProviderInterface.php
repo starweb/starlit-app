@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -10,10 +10,7 @@ namespace Starlit\App\Provider;
 
 use Starlit\App\BaseApp;
 
-/**
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 interface BootableServiceProviderInterface extends ServiceProviderInterface
 {
-    public function boot(BaseApp $app);
+    public function boot(BaseApp $app): void;
 }

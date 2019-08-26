@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -14,11 +14,6 @@ use Symfony\Component\Routing;
 use Starlit\Utils\Str;
 use Starlit\Utils\Url;
 
-/**
- * Base action controller.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 abstract class AbstractController
 {
     /**
@@ -46,18 +41,12 @@ abstract class AbstractController
      */
     protected $autoRenderViewScript;
 
-    /**
-     * Constructor.
-     *
-     * @param BaseApp $app
-     * @param Request $request
-     */
     final public function __construct(BaseApp $app, Request $request)
     {
         $this->app = $app;
         $this->request = $request;
 
-        $this->view = $this->app->getNew('view');
+        $this->view = $this->app->getNew(ViewInterface::class);
         $this->view->setRequest($this->request);
 
         $this->init();
@@ -80,22 +69,17 @@ abstract class AbstractController
      * @param string $action
      * @return Response|null
      */
-    protected function preDispatch($action)
+    protected function preDispatch(string $action): ?Response
     {
+        return null;
     }
 
-    /**
-     * @param bool $autoRenderView
-     */
-    public function setAutoRenderView($autoRenderView)
+    public function setAutoRenderView(bool $autoRenderView): void
     {
         $this->autoRenderView = $autoRenderView;
     }
 
-    /**
-     * @param string $autoRenderViewScript
-     */
-    public function setAutoRenderViewScript($autoRenderViewScript)
+    public function setAutoRenderViewScript(string $autoRenderViewScript): void
     {
         $this->autoRenderViewScript = $autoRenderViewScript;
     }
@@ -108,14 +92,15 @@ abstract class AbstractController
      * @return Response
      * @throws Routing\Exception\ResourceNotFoundException
      */
-    public function dispatch($action = null, array $actionArgs = [])
+    public function dispatch(string $action = null, array $actionArgs = []): Response
     {
         // If not special action is provided, try to get from request
+        $router = $this->app->get(RouterInterface::class);
         $action = Str::camelToSeparator(
-            $action ?: $this->app->getRouter()->getRequestAction($this->request),
+            $action ?: $router->getRequestAction($this->request),
             '-'
         );
-        $actionMethod = $this->app->getRouter()->getActionMethod($action);
+        $actionMethod = $router->getActionMethod($action);
         $collectedArgs = $this->getCollectedDispatchArgs($actionMethod, $actionArgs);
 
         // Call pre dispatch method and return it's response if there is one (uncommon)
@@ -125,7 +110,7 @@ abstract class AbstractController
         }
 
         // Call action method
-        $actionResponse = call_user_func_array([$this, $actionMethod], $collectedArgs);
+        $actionResponse = \call_user_func_array([$this, $actionMethod], $collectedArgs);
 
         $this->postDispatch();
 
@@ -133,12 +118,9 @@ abstract class AbstractController
     }
 
     /**
-     * @param string $actionMethod
-     * @param array $actionArgs
-     * @return array
      * @throws Routing\Exception\ResourceNotFoundException
      */
-    protected function getCollectedDispatchArgs($actionMethod, array $actionArgs = [])
+    protected function getCollectedDispatchArgs(string $actionMethod, array $actionArgs = []): array
     {
         // Check that method is a valid action method
         try {
@@ -152,22 +134,13 @@ abstract class AbstractController
             throw new Routing\Exception\ResourceNotFoundException("\"{$actionMethod}\" action method does not exist.");
         }
 
+        $params = $reflectionMethod->getParameters();
+        $predefinedValues = \array_merge($this->request->attributes->all() ?? [], $actionArgs);
 
-        // Get action arguments from request or method default values.
-        // Throws an exception if arguments are not provided.
-        $collectedArgs = [];
-        foreach ($reflectionMethod->getParameters() as $param) {
-            if (array_key_exists($param->name, $actionArgs)) {
-                $collectedArgs[] = $actionArgs[$param->name];
-            } elseif ($this->request->attributes->has($param->name)) {
-                $collectedArgs[] = $this->request->attributes->get($param->name);
-            } elseif ($param->isDefaultValueAvailable()) {
-                $collectedArgs[] = $param->getDefaultValue();
-            } else {
-                throw new \LogicException(
-                    "Action method \"{$actionMethod}\" requires that you provide a value for the \"\${$param->name}\""
-                );
-            }
+        try {
+            $collectedArgs = $this->app->resolveParameters($params, $predefinedValues);
+        } catch (\ReflectionException $e) {
+            throw new \LogicException('Missing values for one or more action parameters');
         }
 
         return $collectedArgs;
@@ -178,37 +151,31 @@ abstract class AbstractController
      * @param mixed $actionResponse
      * @return Response
      */
-    protected function getDispatchResponse($action, $actionResponse)
+    protected function getDispatchResponse(string $action, $actionResponse): Response
     {
         if ($actionResponse instanceof Response) {
             return $actionResponse->prepare($this->request);
         } elseif ($actionResponse !== null) {
-            return $this->app->get('response')->setContent((string) $actionResponse)->prepare($this->request);
+            return $this->app->get(Response::class)->setContent((string) $actionResponse)->prepare($this->request);
         } elseif ($this->autoRenderView) {
             $viewScript = $this->autoRenderViewScript ?: $this->getAutoRenderViewScriptName(
                 $action,
-                $this->app->getRouter()->getRequestController($this->request),
-                $this->app->getRouter()->getRequestModule($this->request)
+                $this->app->get(RouterInterface::class)->getRequestController($this->request),
+                $this->app->get(RouterInterface::class)->getRequestModule($this->request)
             );
 
-            return $this->app->get('response')->setContent($this->view->render($viewScript, true))
+            return $this->app->get(Response::class)->setContent($this->view->render($viewScript, true))
                 ->prepare($this->request);
         } else {
             // Empty response if no other response is set
-            return $this->app->get('response')->setContent('')
+            return $this->app->get(Response::class)->setContent('')
                 ->prepare($this->request);
         }
     }
 
-    /**
-     * @param string      $action
-     * @param string      $controller
-     * @param string|null $module
-     * @return string
-     */
-    public function getAutoRenderViewScriptName($action, $controller, $module = null)
+    public function getAutoRenderViewScriptName(string $action, string $controller, string $module = null): string
     {
-        $viewScriptName = implode('/', array_filter([$module, $controller, $action]));
+        $viewScriptName = \implode('/', \array_filter([$module, $controller, $action]));
 
         return $viewScriptName;
     }
@@ -218,7 +185,7 @@ abstract class AbstractController
      * This method is called right after an action method has returned it's response,
      * but before the dispatch method returns the response.
      */
-    protected function postDispatch()
+    protected function postDispatch(): void
     {
     }
 
@@ -231,21 +198,26 @@ abstract class AbstractController
      * @param array       $actionArgs
      * @return Response
      */
-    protected function forward($action, $controller = null, $module = null, array $actionArgs = [])
-    {
+    protected function forward(
+        string $action,
+        string $controller = null,
+        string $module = null,
+        array $actionArgs = []
+    ): Response {
         // Forward inside same controller (easy)
         if (empty($controller)) {
             return $this->dispatch($action, $actionArgs);
         // Forward to another controller
         } else {
-            $controller = $controller ?: $this->app->getRouter()->getRequestController($this->request);
-            $module = $module ?: $this->app->getRouter()->getRequestModule($this->request);
+            $router = $this->app->get(RouterInterface::class);
+            $controller = $controller ?: $router->getRequestController($this->request);
+            $module = $module ?: $router->getRequestModule($this->request);
 
-            $controllerClass = $this->app->getRouter()->getControllerClass($controller, $module);
+            $controllerClass = $router->getControllerClass($controller, $module);
             $actualController = new $controllerClass($this->app, $this->request);
 
             // Set new request properties
-            $this->request->attributes->add(compact('module', 'controller', 'action'));
+            $this->request->attributes->add(\compact('module', 'controller', 'action'));
 
             return $actualController->dispatch($action, $actionArgs);
         }
@@ -258,7 +230,7 @@ abstract class AbstractController
      * @param array  $parameters
      * @return string
      */
-    protected function getUrl($relativeUrl = null, array $parameters = [])
+    protected function getUrl(string $relativeUrl = null, array $parameters = []): string
     {
         // Make an absolute url of a new one url, or use the current one if none is provided
         if ($relativeUrl !== null) {
@@ -268,7 +240,7 @@ abstract class AbstractController
         }
 
         if ($parameters) {
-            $mergedParameters = array_merge($this->get(), $parameters);
+            $mergedParameters = \array_merge($this->get(), $parameters);
             $url = (string) (new Url($url))->addQueryParameters($mergedParameters);
         }
 
@@ -282,7 +254,7 @@ abstract class AbstractController
      * @param mixed  $default
      * @return string|array
      */
-    protected function get($key = null, $default = null)
+    protected function get(string $key = null, $default = null)
     {
         if ($key === null) {
             return $this->request->query->all();
@@ -298,7 +270,7 @@ abstract class AbstractController
      * @param mixed  $default
      * @return string|array
      */
-    protected function post($key = null, $default = null)
+    protected function post(string $key = null, $default = null)
     {
         if ($key === null) {
             return $this->request->request->all();

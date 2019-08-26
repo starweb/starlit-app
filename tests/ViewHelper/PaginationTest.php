@@ -1,14 +1,15 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Starlit\App\ViewHelper;
 
-/**
- */
-class PaginationTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class PaginationTest extends TestCase
 {
-    public function testInvoke()
+    public function testInvoke(): void
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
-        $mockRequest->query = $this->createMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+        $mockRequest->query = $this->createMock(\Symfony\Component\HttpFoundation\ParameterBag::class);
         $mockRequest->query->expects($this->any())
             ->method('all')
             ->will($this->returnValue([]));
@@ -18,7 +19,7 @@ class PaginationTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('/index/test'));
 
 
-        $mockView = $this->createMock('\Starlit\App\View');
+        $mockView = $this->createMock(\Starlit\App\View::class);
         $mockView->expects($this->any())
             ->method('getRequest')
             ->will($this->returnValue($mockRequest));
@@ -30,9 +31,9 @@ class PaginationTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('<div', $return);
     }
 
-    public function testInvokeException()
+    public function testInvokeException(): void
     {
-        $this->expectException('\LogicException');
+        $this->expectException(\LogicException::class);
 
         $paginationViewHelper = new Pagination();
         $paginationViewHelper(1, 10, 20);

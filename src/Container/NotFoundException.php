@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -10,9 +10,6 @@ namespace Starlit\App\Container;
 
 use Psr\Container\NotFoundExceptionInterface;
 
-/**
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class NotFoundException extends \InvalidArgumentException implements NotFoundExceptionInterface
 {
 }

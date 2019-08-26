@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -8,24 +8,29 @@
 
 namespace Starlit\App\Provider;
 
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Logger;
+use Monolog\Processor\WebProcessor;
 use Starlit\App\BaseApp;
+use Starlit\App\ErrorHandling\UserErrorPageHandler;
+use Whoops\Handler\PlainTextHandler;
+use Whoops\Handler\PrettyPageHandler;
 
-/**
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class ErrorServiceProvider implements ServiceProviderInterface
 {
     /**
      * @param BaseApp $app
      */
-    public function register(BaseApp $app)
+    public function register(BaseApp $app): void
     {
-        $app->set('errorLogger', function (BaseApp $app) {
-            $logger = new \Monolog\Logger('errorLogger');
+        $app->alias('errorLogger', Logger::class);
+        $app->set(
+            Logger::class, function (BaseApp $app) {
+            $logger = new Logger('errorLogger');
 
-            $handler = new \Monolog\Handler\ErrorLogHandler();
+            $handler = new ErrorLogHandler();
             if (!$app->isCli()) {
-                $handler->pushProcessor(new \Monolog\Processor\WebProcessor());
+                $handler->pushProcessor(new WebProcessor());
                 $format = '%level_name%: %message% %extra.server%%extra.url%';
             } else {
                 $format = '%level_name%: %message%';
@@ -37,7 +42,7 @@ class ErrorServiceProvider implements ServiceProviderInterface
         });
 
         $app->set('whoopsDebugErrorPageHandler', function (BaseApp $app) {
-            $prettyPageHandler = new \Whoops\Handler\PrettyPageHandler();
+            $prettyPageHandler = new PrettyPageHandler();
             if ($app->getConfig()->has('editor')) {
                 $prettyPageHandler->setEditor($app->getConfig()->get('editor'));
             }
@@ -45,15 +50,17 @@ class ErrorServiceProvider implements ServiceProviderInterface
             return $prettyPageHandler;
         });
 
-        $app->set('whoopsUserErrorPageHandler', function (BaseApp $app) {
-            return new \Starlit\App\ErrorHandling\UserErrorPageHandler(
+        $app->alias('whoopsUserErrorPageHandler', UserErrorPageHandler::class);
+        $app->set(
+            UserErrorPageHandler::class, function (BaseApp $app) {
+            return new UserErrorPageHandler(
                 $app->getConfig()->getRequired('errorPagePath')
             );
         });
 
         $app->set('whoopsErrorHandler', function (BaseApp $app) {
-            $plainTextHandler = new \Whoops\Handler\PlainTextHandler();
-            $plainTextHandler->setLogger($app->get('errorLogger'));
+            $plainTextHandler = new PlainTextHandler();
+            $plainTextHandler->setLogger($app->get(Logger::class));
             if (!$app->isCli()) {
                 $plainTextHandler->loggerOnly(true);
             }

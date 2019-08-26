@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -8,19 +8,13 @@
 
 namespace Starlit\App\ViewHelper;
 
-/**
- * Inline JavaScript capture view helper.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class InlineScriptCapturer extends Capturer
 {
-    /**
-     * End capturing (overridden).
-     */
-    public function end()
+    public function end(): AbstractViewHelper
     {
         // Get the captured contents and end this output buffer
-        $this->view->inlineJs .= ob_get_clean();
+        $this->view->inlineJs .= \ob_get_clean();
+
+        return $this;
     }
 }

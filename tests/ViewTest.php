@@ -1,20 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Starlit\App;
 
-class ViewTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ViewTest extends TestCase
 {
     /**
      * @var View
      */
     protected $view;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->view = new View(['scriptRootPath' => __DIR__ . '/views']);
     }
 
-    public function testConstructAndOptions()
+    public function testConstructAndOptions(): void
     {
         $fakeOptions = [
             'scriptRootPath' => 'fake/root',
@@ -33,14 +35,14 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($fakeOptions['fileExtension'], $prop->getValue($tmpObject));
     }
 
-    public function test__set()
+    public function test__set(): void
     {
        $this->assertEquals('', $this->view->someVar);
        $this->view->someVar = 'blabla';
        $this->assertEquals('blabla', $this->view->someVar);
     }
 
-    public function testRender()
+    public function testRender(): void
     {
        $output = $this->view->render('page');
        $this->assertContains('Page text', $output);
@@ -49,13 +51,13 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers \Starlit\App\View::renderScript
      */
-    public function testRenderNonExistantView()
+    public function testRenderNonExistantView(): void
     {
-        $this->expectException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $this->view->render('non-existant');
     }
 
-    public function testRenderLayout()
+    public function testRenderLayout(): void
     {
         $this->view->setLayout('layout');
         $output = $this->view->render('page', true);
@@ -64,21 +66,21 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Layout end', $output);
     }
 
-    public function testEscape()
+    public function testEscape(): void
     {
        $this->assertEquals('&amp;', $this->view->escape('&'));
     }
 
-    public function testGetEscaped()
+    public function testGetEscaped(): void
     {
         $this->view->someVar = '&';
         $this->assertEquals('&amp;', $this->view->getEscaped('someVar'));
         $this->assertEquals('', $this->view->getEscaped('someNonExistingVar'));
     }
 
-    public function testAddHelperClass()
+    public function testAddHelperClass(): void
     {
-        $mockHelper = $this->createMock('\Starlit\App\ViewHelper\AbstractViewHelper');
+        $mockHelper = $this->createMock(\Starlit\App\ViewHelper\AbstractViewHelper::class);
         $mockClassName = get_class($mockHelper);
 
         $this->view->addHelperClass('mock', $mockClassName);
@@ -87,47 +89,46 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf($mockClassName, $helper);
     }
 
-    public function testGetHelperFail()
+    public function testGetHelperFail(): void
     {
-        $this->expectException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $this->view->getHelper('nonExisting');
     }
 
-    public function test__callInvokable()
+    public function test__callInvokable(): void
     {
-        $this->view->addHelperClass('invokableTestHelper', '\Starlit\App\InvokableTestHelper');
+        $invokableTestHelper = (new class() extends \Starlit\App\ViewHelper\AbstractViewHelper
+        {
+            public function __invoke(string $parameter): string
+            {
+                return $parameter;
+            }
+        });
+        $this->view->addHelperClass('invokableTestHelper', \get_class($invokableTestHelper));
 
         $result = $this->view->__call('invokableTestHelper', ['testarg']);
         $this->assertEquals('testarg', $result);
     }
 
-    public function testRequest()
+    public function testRequest(): void
     {
-        $mockRequest = $this->createMock('\Symfony\Component\HttpFoundation\Request');
+        $mockRequest = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
         $this->view->setRequest($mockRequest);
 
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Request', $this->view->getRequest());
+        $this->assertInstanceOf(\Symfony\Component\HttpFoundation\Request::class, $this->view->getRequest());
     }
 
-    public function test__isset()
+    public function test__isset(): void
     {
         $this->assertFalse(isset($this->view->someVar));
         $this->view->someVar = 1;
         $this->assertTrue(isset($this->view->someVar));
     }
 
-    public function testSetLayoutContet()
+    public function testSetLayoutContet(): void
     {
         $content = 'test';
         $this->view->setLayoutContent($content);
         $this->assertEquals($content, $this->view->layoutContent());
-    }
-}
-
-class InvokableTestHelper extends \Starlit\App\ViewHelper\AbstractViewHelper
-{
-    public function __invoke($parameter)
-    {
-        return $parameter;
     }
 }

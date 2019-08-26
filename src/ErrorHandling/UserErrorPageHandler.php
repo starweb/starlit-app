@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -10,9 +10,6 @@ namespace Starlit\App\ErrorHandling;
 
 use Whoops\Handler\Handler;
 
-/**
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class UserErrorPageHandler extends Handler
 {
     /**
@@ -20,18 +17,12 @@ class UserErrorPageHandler extends Handler
      */
     protected $errorPagePath;
 
-    /**
-     * @param string $errorPagePath
-     */
-    public function __construct($errorPagePath)
+    public function __construct(string $errorPagePath)
     {
         $this->errorPagePath = $errorPagePath;
     }
 
-    /**
-     * @return int|null
-     */
-    public function handle()
+    public function handle(): ?int
     {
         if (php_sapi_name() === 'cli') {
             return Handler::DONE;

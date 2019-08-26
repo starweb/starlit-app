@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -13,16 +13,10 @@ use Starlit\App\Provider\BootableServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Starlit\App\Provider\ServiceProviderInterface;
 use Starlit\App\Provider\StandardServiceProvider;
 use Starlit\App\Provider\ErrorServiceProvider;
 
-/**
- * Main framework application and bootstrap class, which also serves as a micro service/dependency injection container.
- *
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 class BaseApp extends Container
 {
     /**
@@ -51,12 +45,17 @@ class BaseApp extends Container
     protected $booted = false;
 
     /**
+     * @var bool
+     */
+    protected $isCli = false;
+
+    /**
      * Constructor.
      *
      * @param array|Config $config
      * @param string       $environment Defaults to "production"
      */
-    public function __construct($config = [], $environment = 'production')
+    public function __construct(array $config = [], string $environment = 'production')
     {
         if ($config instanceof Config) {
             $this->config = $config;
@@ -77,9 +76,9 @@ class BaseApp extends Container
      * mock objects can't be injected in their place. Place object instance code in
      * the preHandle method.
      */
-    protected function init()
+    protected function init(): void
     {
-        $this->set('cli', (PHP_SAPI === 'cli'));
+        $this->isCli = (PHP_SAPI === 'cli');
 
         if ($this->config->has('phpSettings')) {
             $this->setPhpSettings($this->config->get('phpSettings'));
@@ -88,38 +87,26 @@ class BaseApp extends Container
         $this->registerProviders();
     }
 
-    /**
-     * Register service providers.
-     */
-    protected function registerProviders()
+    protected function registerProviders(): void
     {
         $this->register(new ErrorServiceProvider());
         $this->register(new StandardServiceProvider());
     }
 
-    /**
-     * Register service provider.
-     *
-     * @param ServiceProviderInterface $provider
-     */
-    public function register(ServiceProviderInterface $provider)
+    public function register(ServiceProviderInterface $provider): void
     {
         $this->providers[] = $provider;
 
         $provider->register($this);
     }
 
-    /**
-     * @param array  $phpSettings
-     * @param string $prefix
-     */
-    protected function setPhpSettings($phpSettings, $prefix = '')
+    protected function setPhpSettings(array $phpSettings, string $prefix = ''): void
     {
         foreach ($phpSettings as $key => $val) {
             $key = $prefix . $key;
-            if (is_scalar($val)) {
-                ini_set($key, $val);
-            } elseif (is_array($val)) {
+            if (\is_scalar($val)) {
+                \ini_set($key, $val);
+            } elseif (\is_array($val)) {
                 $this->setPhpSettings($val, $key . '.'); // Set sub setting with a recursive call
             }
         }
@@ -131,7 +118,7 @@ class BaseApp extends Container
      * This is normally called by handle(). If requests are not handled
      * this method will have to called manually to boot.
      */
-    public function boot()
+    public function boot(): void
     {
         if ($this->booted) {
             return;
@@ -155,8 +142,9 @@ class BaseApp extends Container
      * @param Request $request
      * @return Response|null
      */
-    protected function preHandle(Request $request)
+    protected function preHandle(Request $request): ?Response
     {
+        return null;
     }
 
     /**
@@ -167,8 +155,9 @@ class BaseApp extends Container
      * @param Request $request
      * @return Response|null
      */
-    protected function postRoute(Request $request)
+    protected function postRoute(Request $request): ?Response
     {
+        return null;
     }
 
     /**
@@ -177,9 +166,10 @@ class BaseApp extends Container
      * @param Request $request
      * @return Response
      */
-    public function handle(Request $request)
+    public function handle(Request $request): Response
     {
-        $this->set('request', $request);
+        $this->alias('request', Request::class);
+        $this->set(Request::class, $request);
 
         $this->boot();
 
@@ -188,7 +178,7 @@ class BaseApp extends Container
         }
 
         try {
-            $controller = $this->getRouter()->route($request);
+            $controller = $this->get(RouterInterface::class)->route($request);
 
             if (($postRouteResponse = $this->postRoute($request))) {
                 return $postRouteResponse;
@@ -204,13 +194,7 @@ class BaseApp extends Container
         return $response;
     }
 
-    /**
-     * Returns a response for no route / resource not found.
-     *
-     * @param Request $request
-     * @return Response
-     */
-    protected function getNoRouteResponse(Request $request)
+    protected function getNoRouteResponse(Request $request): Response
     {
         return new Response('Not Found', 404);
     }
@@ -222,54 +206,26 @@ class BaseApp extends Container
      *
      * @param Request $request
      */
-    protected function postHandle(Request $request)
+    protected function postHandle(Request $request): void
     {
     }
 
-    /**
-     * @return Config
-     */
-    public function getConfig()
+    public function getConfig(): Config
     {
         return $this->config;
     }
 
-    /**
-     * @return bool
-     */
-    public function isCli()
+    public function isCli(): bool
     {
-        return $this->get('cli');
+        return $this->isCli;
     }
 
-    /**
-     * @return Session
-     */
-    public function getSession()
+    public function getRequest(): ?Request
     {
-        return $this->get('session'); // Makes this method faster by bypassing __call() (which is quite slow).
+        return $this->has(Request::class) ? $this->get(Request::class) : null;
     }
 
-    /**
-     * @return Router
-     */
-    public function getRouter()
-    {
-        return $this->get('router'); // Makes this method faster by bypassing __call() (which is quite slow).
-    }
-
-    /**
-     * @return Request|null
-     */
-    public function getRequest()
-    {
-        return $this->has('request') ? $this->get('request') : null;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEnvironment()
+    public function getEnvironment(): string
     {
         return $this->environment;
     }

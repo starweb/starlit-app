@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Starlit App.
  *
@@ -10,9 +10,6 @@ namespace Starlit\App\ViewHelper;
 
 use Starlit\App\View;
 
-/**
- * @author Andreas Nilsson <http://github.com/jandreasn>
- */
 abstract class AbstractViewHelper
 {
     /**
@@ -20,11 +17,7 @@ abstract class AbstractViewHelper
      */
     protected $view;
 
-    /**
-     * @param View $view
-     * @return AbstractViewHelper
-     */
-    public function setView(View $view)
+    public function setView(View $view): AbstractViewHelper
     {
         $this->view = $view;
 
