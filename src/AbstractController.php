@@ -252,7 +252,8 @@ abstract class AbstractController
      *
      * @param string $key
      * @param mixed  $default
-     * @return string|array
+     * @return mixed|null   array if the key is null, otherwise the value for the key or its default value
+     *                      which is null by default
      */
     protected function get(string $key = null, $default = null)
     {
