@@ -11,7 +11,7 @@ class CapturerTest extends TestCase
      */
     protected $capturerHelper;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->capturerHelper = new Capturer();
     }

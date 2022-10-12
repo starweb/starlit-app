@@ -28,7 +28,7 @@ class PaginationTest extends TestCase
         $paginationViewHelper->setView($mockView);
         $return = $paginationViewHelper(1, 10, 20);
 
-        $this->assertContains('<div', $return);
+        $this->assertStringContainsString('<div', $return);
     }
 
     public function testInvokeException(): void

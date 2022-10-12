@@ -257,7 +257,10 @@ class Container implements ContainerInterface
                 }
                 $values[] = $predefinedValues[$parameter->getName()];
             } else {
-                if (($parameterClass = $parameter->getClass())) {
+                $parameterClass = $parameter->getType() && !$parameter->getType()->isBuiltin()
+                    ? new \ReflectionClass($parameter->getType()->getName())
+                    : null;
+                if ($parameterClass) {
                     try {
                         $values[] = $this->get($parameterClass->getName());
                     }
