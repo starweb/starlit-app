@@ -54,7 +54,7 @@ class StandardServiceProvider implements ServiceProviderInterface
             $response = new Response();
 
             $response->headers->addCacheControlDirective('no-cache', true);
-            $response->headers->addCacheControlDirective('max-age', 0);
+            $response->headers->addCacheControlDirective('max-age', '0');
             $response->headers->addCacheControlDirective('must-revalidate', true);
             $response->headers->addCacheControlDirective('no-store', true);
 
