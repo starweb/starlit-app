@@ -45,7 +45,7 @@ class ViewTest extends TestCase
     public function testRender(): void
     {
        $output = $this->view->render('page');
-       $this->assertContains('Page text', $output);
+       $this->assertStringContainsString('Page text', $output);
     }
 
     /**
@@ -61,9 +61,9 @@ class ViewTest extends TestCase
     {
         $this->view->setLayout('layout');
         $output = $this->view->render('page', true);
-        $this->assertContains('Page text', $output);
-        $this->assertContains('Layout start', $output);
-        $this->assertContains('Layout end', $output);
+        $this->assertStringContainsString('Page text', $output);
+        $this->assertStringContainsString('Layout start', $output);
+        $this->assertStringContainsString('Layout end', $output);
     }
 
     public function testEscape(): void
